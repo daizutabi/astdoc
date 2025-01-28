@@ -195,19 +195,20 @@ def test_convert_examples(converted_examples, i, text):
     assert text in converted_examples[i]
 
 
-def test_split_block():
+@pytest.mark.parametrize(
+    ("text", "first"),
+    [
+        ("\n a\n b\n\n c\nd\n", "\n a\n b\n\n c\n"),
+        ("\n a\n b\n\n c\n", "\n a\n b\n\n c\n"),
+        ("a\nb\n", ""),
+    ],
+)
+def test_split_block(text, first):
     from astdoc.markdown import _split_block
 
-    src = "\n a\n b\n\n c\nd\n"
-    x, y = _split_block(src, 0)
-    assert x == "\n a\n b\n\n c\n"
-    assert f"{x}{y}" == src
-    src = "\n a\n b\n\n c\n"
-    x, y = _split_block(src, 0)
-    assert (x, y) == (src, "")
-    src = "a\nb\n"
-    x, y = _split_block(src, 0)
-    assert (x, y) == ("", src)
+    x, y = _split_block(text, 0)
+    assert x == first
+    assert f"{x}{y}" == text
 
 
 def test_iter_literal_block():
