@@ -1,5 +1,7 @@
 import ast
 
+import pytest
+
 from astdoc.object import Function
 
 
@@ -14,12 +16,6 @@ def get(src: str) -> Function:
 def test_iter_signature_return():
     from astdoc.parser import _iter_signature
 
-    obj = get("def f(): pass")
-    x = list(_iter_signature(obj))
-    assert x[0][0] == "("
-    assert x[0][1].value == "paren"
-    assert x[-1][0] == ")"
-    assert x[-1][1].value == "paren"
     obj = get("def f()->bool: pass")
     x = list(_iter_signature(obj))
     assert x[0][0] == "("
@@ -34,6 +30,17 @@ def test_iter_signature_return():
     assert x[-1][1].value == "return"
 
 
+def test_iter_signature_return_none():
+    from astdoc.parser import _iter_signature
+
+    obj = get("def f(): pass")
+    x = list(_iter_signature(obj))
+    assert x[0][0] == "("
+    assert x[0][1].value == "paren"
+    assert x[-1][0] == ")"
+    assert x[-1][1].value == "paren"
+
+
 def sig(src: str) -> str:
     from astdoc.parser import _iter_signature
 
@@ -41,15 +48,21 @@ def sig(src: str) -> str:
     return "".join(str(x[0]).replace(" ", "") for x in _iter_signature(obj))
 
 
-def test_iter_signature_kind():
-    assert sig("x,y,z") == "(x,y,z)"
-    assert sig("x,/,y,z") == "(x,/,y,z)"
-    assert sig("x,/,*,y,z") == "(x,/,\\*,y,z)"
-    assert sig("x,/,y,*,z") == "(x,/,y,\\*,z)"
-    assert sig("x,y,z,/") == "(x,y,z,/)"
-    assert sig("*,x,y,z") == "(\\*,x,y,z)"
-    assert sig("*x,y,**z") == "(\\*x,y,\\*\\*z)"
-    assert sig("x,y,/,**z") == "(x,y,/,\\*\\*z)"
+@pytest.mark.parametrize(
+    ("src", "expected"),
+    [
+        ("x,y,z", "(x,y,z)"),
+        ("x,/,y,z", "(x,/,y,z)"),
+        ("x,/,*,y,z", "(x,/,\\*,y,z)"),
+        ("x,/,y,*,z", "(x,/,y,\\*,z)"),
+        ("x,y,z,/", "(x,y,z,/)"),
+        ("*,x,y,z", "(\\*,x,y,z)"),
+        ("*x,y,**z", "(\\*x,y,\\*\\*z)"),
+        ("x,y,/,**z", "(x,y,/,\\*\\*z)"),
+    ],
+)
+def test_iter_signature_kind(src, expected):
+    assert sig(src) == expected
 
 
 def test_get_signature():
@@ -109,7 +122,7 @@ def test_get_signature_dont_skip_self_class():
     from astdoc.object import get_object
     from astdoc.parser import get_signature
 
-    obj = get_object("example.sub.ClassA")
+    obj = get_object("examples.ClassA")
     s = get_signature(obj)  # type: ignore
     assert s[0].name == "("
     assert s[1].name == "a"
