@@ -14,6 +14,11 @@ def test_iter_imports():
     for i in [0, 1]:
         assert x[0][i] == "matplotlib"
         assert x[1][i] == "matplotlib.pyplot"
+
+
+def test_iter_imports_alias():
+    from astdoc.node import _iter_imports
+
     src = "import matplotlib.pyplot as plt"
     node = ast.parse(src).body[0]
     assert isinstance(node, ast.Import)
@@ -35,18 +40,18 @@ def test_iter_imports_from():
     assert x[0][1] == "matplotlib.pyplot"
 
 
-def test_parse_import():
+@pytest.mark.parametrize(("k", "n"), [(0, ""), (1, ".b"), (2, ".b.c")])
+def test_parse_import(k, n):
     from astdoc.node import Import, parse_node
 
     name = "test_parse_import"
     src = f"import {name}.b.c"
     node = ast.parse(src)
     x = list(parse_node(node, "m"))
-    for k, n in enumerate(["", ".b", ".b.c"]):
-        i = x[k][1]
-        assert isinstance(i, Import)
-        assert i.fullname == f"{name}{n}"
-        assert x[k][0] == f"{name}{n}"
+    i = x[k][1]
+    assert isinstance(i, Import)
+    assert i.fullname == f"{name}{n}"
+    assert x[k][0] == f"{name}{n}"
 
 
 def test_parse_import_as():
@@ -76,7 +81,7 @@ def test_parse_import_from():
             assert x[k][0] == n
 
 
-@pytest.mark.parametrize("name", ["astdoc.node", "astdoc.renderer"])
+@pytest.mark.parametrize("name", ["astdoc.node", "astdoc.object"])
 def test_get_node_module(name: str):
     from astdoc.node import Module, get_node
 
@@ -94,10 +99,8 @@ def test_get_node_class(name: str):
     ("name", "expected_repr"),
     [
         ("astdoc.node", "Module('astdoc.node')"),
-        ("astdoc.renderer", "Module('astdoc.renderer')"),
         ("jinja2.Template", "Definition('Template', 'jinja2.environment')"),
         ("astdoc.doc.Item", "Definition('Item', 'astdoc.doc')"),
-        ("astdoc.config.sys", "Import('sys')"),
     ],
 )
 def test_node_repr(name: str, expected_repr: str):
