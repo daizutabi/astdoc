@@ -2,42 +2,69 @@ import ast
 import textwrap
 from inspect import _ParameterKind
 
+import pytest
 
-def test_iter_child_nodes():
+
+@pytest.fixture(scope="module")
+def child_nodes():
     from astdoc.ast import iter_child_nodes
 
     src = "a:int\nb=1\n'''b'''\nc='c'"
     node = ast.parse(src)
-    x = list(iter_child_nodes(node))
-    assert len(x) == 3
-    assert x[0].__doc__ is None
-    assert x[1].__doc__ == "b"
-    assert x[2].__doc__ is None
+    return list(iter_child_nodes(node))
 
 
-def test_iter_parameters():
+def test_iter_child_nodes_len(child_nodes):
+    assert len(child_nodes) == 3
+
+
+@pytest.mark.parametrize(("i", "doc"), [(0, None), (1, "b"), (2, None)])
+def test_iter_child_nodes(child_nodes, i, doc):
+    assert child_nodes[i].__doc__ == doc
+
+
+def test_iter_parameters_none():
     from astdoc.ast import iter_parameters
 
     src = "def f(): pass"
     node = ast.parse(src).body[0]
     assert isinstance(node, ast.FunctionDef)
     assert list(iter_parameters(node)) == []
+
+
+@pytest.fixture(scope="module")
+def parameters():
+    from astdoc.ast import iter_parameters
+
     src = "def f(a,/,b=1,*,c,d=1): pass"
     node = ast.parse(src).body[0]
     assert isinstance(node, ast.FunctionDef)
-    x = list(iter_parameters(node))
-    assert x[0].name == "a"
-    assert x[1].name == "b"
-    assert x[2].name == "c"
-    assert x[3].name == "d"
-    assert x[0].default is None
-    assert x[1].default is not None
-    assert x[2].default is None
-    assert x[3].default is not None
-    assert x[0].kind is _ParameterKind.POSITIONAL_ONLY
-    assert x[1].kind is _ParameterKind.POSITIONAL_OR_KEYWORD
-    assert x[2].kind is _ParameterKind.KEYWORD_ONLY
-    assert x[3].kind is _ParameterKind.KEYWORD_ONLY
+    return list(iter_parameters(node))
+
+
+@pytest.mark.parametrize(
+    ("i", "name", "default", "kind"),
+    [
+        (0, "a", None, _ParameterKind.POSITIONAL_ONLY),
+        (1, "b", 1, _ParameterKind.POSITIONAL_OR_KEYWORD),
+        (2, "c", None, _ParameterKind.KEYWORD_ONLY),
+        (3, "d", 1, _ParameterKind.KEYWORD_ONLY),
+    ],
+)
+def test_iter_parameters(parameters, i, name, default, kind):
+    from ast import Constant
+
+    from astdoc.ast import Parameter
+
+    p = parameters[i]
+    assert isinstance(p, Parameter)
+    assert p.name == name
+    if default is None:
+        assert p.default is None
+    else:
+        assert isinstance(p.default, Constant)
+        assert p.default.value == default
+    assert p.kind == kind
 
 
 def test_iter_raises():
@@ -70,42 +97,85 @@ def test_expr_subscript():
     assert _unparse("a[b]") == "__astdoc__.a[__astdoc__.b]"
 
 
-def test_expr_attribute():
-    assert _unparse("a.b") == "__astdoc__.a.b"
-    assert _unparse("a.b.c") == "__astdoc__.a.b.c"
-    assert _unparse("a().b[0].c()") == "__astdoc__.a().b[0].c()"
-    assert _unparse("a(b.c[d])") == "__astdoc__.a(__astdoc__.b.c[__astdoc__.d])"
+@pytest.mark.parametrize(
+    ("src", "expected"),
+    [
+        ("a.b", "__astdoc__.a.b"),
+        ("a.b.c", "__astdoc__.a.b.c"),
+        ("a().b[0].c()", "__astdoc__.a().b[0].c()"),
+        ("a(b.c[d])", "__astdoc__.a(__astdoc__.b.c[__astdoc__.d])"),
+    ],
+)
+def test_expr_attribute(src, expected):
+    assert _unparse(src) == expected
 
 
 def test_expr_str():
     assert _unparse("list['X.Y']") == "__astdoc__.list[__astdoc__.X.Y]"
 
 
-def test_iter_identifiers():
+@pytest.mark.parametrize(
+    ("i", "text", "is_identifier"),
+    [
+        (0, "x, ", False),
+        (1, "a.b0", True),
+        (2, "[", False),
+        (3, "c", True),
+        (4, "], y", False),
+    ],
+)
+def test_iter_identifiers_bracket(i, text, is_identifier):
     from astdoc.ast import _iter_identifiers
 
     x = list(_iter_identifiers("x, __astdoc__.a.b0[__astdoc__.c], y"))
-    assert len(x) == 5
-    assert x[0] == ("x, ", False)
-    assert x[1] == ("a.b0", True)
-    assert x[2] == ("[", False)
-    assert x[3] == ("c", True)
-    assert x[4] == ("], y", False)
+    assert x[i] == (text, is_identifier)
+
+
+@pytest.mark.parametrize(
+    ("i", "text", "is_identifier"),
+    [(0, "a.b", True), (1, "()", False)],
+)
+def test_iter_identifiers_paren(i, text, is_identifier):
+    from astdoc.ast import _iter_identifiers
+
     x = list(_iter_identifiers("__astdoc__.a.b()"))
-    assert len(x) == 2
-    assert x[0] == ("a.b", True)
-    assert x[1] == ("()", False)
+    assert x[i] == (text, is_identifier)
+
+
+@pytest.mark.parametrize(
+    ("i", "text", "is_identifier"),
+    [(0, "'ab'\n ", False), (1, "a", True)],
+)
+def test_iter_identifiers_lines(i, text, is_identifier):
+    from astdoc.ast import _iter_identifiers
+
     x = list(_iter_identifiers("'ab'\n __astdoc__.a"))
-    assert len(x) == 2
-    assert x[0] == ("'ab'\n ", False)
-    assert x[1] == ("a", True)
+    assert x[i] == (text, is_identifier)
+
+
+@pytest.mark.parametrize(
+    ("i", "text", "is_identifier"),
+    [(0, "'ab'\n ", False), (1, "α.β.γ", True)],
+)
+def test_iter_identifiers_greek(i, text, is_identifier):
+    from astdoc.ast import _iter_identifiers
+
     x = list(_iter_identifiers("'ab'\n __astdoc__.α.β.γ"))
-    assert len(x) == 2
-    assert x[0] == ("'ab'\n ", False)
-    assert x[1] == ("α.β.γ", True)
+    assert x[i] == (text, is_identifier)
 
 
-def test_unparse():
+@pytest.mark.parametrize(
+    ("src", "expected"),
+    [
+        ("a", "<a>"),
+        ("a.b.c", "<a.b.c>"),
+        ("a.b[c].d(e)", "<a.b>[<c>].d(<e>)"),
+        ("a | b.c | d", "<a> | <b.c> | <d>"),
+        ("list[A]", "<list>[<A>]"),
+        ("list['A']", "<list>[<A>]"),
+    ],
+)
+def test_unparse(src, expected):
     from astdoc.ast import unparse
 
     def callback(s: str) -> str:
@@ -114,90 +184,88 @@ def test_unparse():
     def f(s: str) -> str:
         return unparse(_expr(s), callback)
 
-    assert f("a") == "<a>"
-    assert f("a.b.c") == "<a.b.c>"
-    assert f("a.b[c].d(e)") == "<a.b>[<c>].d(<e>)"
-    assert f("a | b.c | d") == "<a> | <b.c> | <d>"
-    assert f("list[A]") == "<list>[<A>]"
-    assert f("list['A']") == "<list>[<A>]"
+    assert f(src) == expected
 
 
-def test_is_classmethod():
+@pytest.mark.parametrize(
+    ("src", "expected"),
+    [("@classmethod\ndef func(cls): pass", True), ("def func(cls): pass", False)],
+)
+def test_is_classmethod(src, expected):
     from astdoc.ast import is_classmethod
 
-    src = "@classmethod\ndef func(cls): pass"
     node = ast.parse(src).body[0]
-    assert is_classmethod(node)
-    src = "def func(cls): pass"
-    node = ast.parse(src).body[0]
-    assert not is_classmethod(node)
+    assert is_classmethod(node) is expected
 
 
-def test_is_staticmethod():
+@pytest.mark.parametrize(
+    ("src", "expected"),
+    [("@staticmethod\ndef func(): pass", True), ("def func(): pass", False)],
+)
+def test_is_staticmethod(src, expected):
     from astdoc.ast import is_staticmethod
 
-    src = "@staticmethod\ndef func(): pass"
     node = ast.parse(src).body[0]
-    assert is_staticmethod(node)
-    src = "def func(): pass"
-    node = ast.parse(src).body[0]
-    assert not is_staticmethod(node)
+    assert is_staticmethod(node) is expected
 
 
-def test_is_assign():
+@pytest.mark.parametrize(
+    ("src", "expected"),
+    [("x: int = 5", True), ("x = 5", True), ("def func(): pass", False)],
+)
+def test_is_assign(src, expected):
     from astdoc.ast import is_assign
 
-    src = "x: int = 5"
     node = ast.parse(src).body[0]
-    assert is_assign(node)
-    src = "x = 5"
-    node = ast.parse(src).body[0]
-    assert is_assign(node)
-    src = "def func(): pass"
-    node = ast.parse(src).body[0]
-    assert not is_assign(node)
+    assert is_assign(node) is expected
 
 
-def test_is_function_def():
+@pytest.mark.parametrize(
+    ("src", "expected"),
+    [("def func(): pass", True), ("class MyClass: pass", False)],
+)
+def test_is_function_def(src, expected):
     from astdoc.ast import is_function_def
 
-    src = "def func(): pass"
     node = ast.parse(src).body[0]
-    assert is_function_def(node)
-    src = "class MyClass: pass"
-    node = ast.parse(src).body[0]
-    assert not is_function_def(node)
+    assert is_function_def(node) is expected
 
 
-def test_is_property():
+@pytest.mark.parametrize(
+    ("src", "expected"),
+    [("@property\ndef func(self): pass", True), ("def func(self): pass", False)],
+)
+def test_is_property(src, expected):
     from astdoc.ast import is_property
 
-    src = "@property\ndef func(self): pass"
     node = ast.parse(src).body[0]
-    assert is_property(node)
-    src = "def func(self): pass"
-    node = ast.parse(src).body[0]
-    assert not is_property(node)
+    assert is_property(node) is expected
 
 
-def test_is_setter():
+@pytest.mark.parametrize(
+    ("src", "expected"),
+    [
+        ("@property\n@func.setter\ndef func(self, value): pass", True),
+        ("def func(self, value): pass", False),
+    ],
+)
+def test_is_setter(src, expected):
     from astdoc.ast import is_setter
 
-    src = "@property\n@func.setter\ndef func(self, value): pass"
     node = ast.parse(src).body[0]
-    assert is_setter(node)
-    src = "def func(self, value): pass"
-    node = ast.parse(src).body[0]
-    assert not is_setter(node)
+    assert is_setter(node) is expected
 
 
-def test_has_decorator():
+@pytest.mark.parametrize(
+    ("name", "expected"),
+    [("my_decorator", True), ("other_decorator", False)],
+)
+def test_has_decorator(name, expected):
     from astdoc.ast import has_decorator
 
     src = "@my_decorator\ndef func(): pass"
     node = ast.parse(src).body[0]
-    assert has_decorator(node, "my_decorator")
-    assert not has_decorator(node, "other_decorator")
+    assert has_decorator(node, name) is expected
 
 
 def test_iter_child_nodes_import():
@@ -241,7 +309,10 @@ def test_parameter_repr():
     from astdoc.ast import Parameter
 
     param = Parameter(
-        name="arg1", type=None, default=None, kind=_ParameterKind.POSITIONAL_OR_KEYWORD,
+        name="arg1",
+        type=None,
+        default=None,
+        kind=_ParameterKind.POSITIONAL_OR_KEYWORD,
     )
     assert repr(param) == "Parameter('arg1')"
 
