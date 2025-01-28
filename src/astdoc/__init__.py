@@ -1,1 +1,1 @@
-"""astdoc is a plugin for MkDocs, designed to generate API documentation."""
+"""Parse abstract syntax trees (AST) and extracting docstring information."""

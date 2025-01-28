@@ -30,6 +30,8 @@ Issues = "https://github.com/daizutabi/astdoc/issues"
 [tool.uv]
 dev-dependencies = [
   "jinja2",
+  "mkapi",
+  "mkdocs-material",
   "pytest-clarity",
   "pytest-cov",
   "pytest-randomly",
