@@ -113,6 +113,16 @@ def test_parse_module_invalid():
     assert parse_module("invalid") == []
 
 
+def test_parse_module_jinja2():
+    from astdoc.node import parse_module
+
+    objects = parse_module("jinja2")
+    assert len(objects) > 30
+    names = [name for name, _ in objects]
+    assert "Template" in names
+    assert "Environment" in names
+
+
 def test_get_node_invalid_module():
     from astdoc.node import get_node
 

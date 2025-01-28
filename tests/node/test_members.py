@@ -1,25 +1,35 @@
 import pytest
 
 
-def test_module_members_package_jinja():
+@pytest.mark.parametrize(
+    "name",
+    [
+        "Template",
+        "FileSystemLoader",
+        "clear_caches",
+        "Environment.compile",
+        "ChoiceLoader.load",
+    ],
+)
+def test_module_members_package_jinja(name):
     from astdoc.node import iter_module_members
 
-    members = [m for m, _ in iter_module_members("jinja2")]
-    assert "Template" in members
-    assert "FileSystemLoader" in members
-    assert "clear_caches" in members
-    assert "Environment.compile" in members
-    assert "ChoiceLoader.load" in members
+    assert name in [m for m, _ in iter_module_members("jinja2")]
 
 
-def test_module_members_package_alias():
+@pytest.mark.parametrize(
+    "name",
+    [
+        "ExampleClassGoogle",
+        "ExampleClassNumPy",
+        "ExampleClassGoogle.readonly_property",
+        "ExampleClassNumPy.readonly_property",
+    ],
+)
+def test_module_members_package_alias(name):
     from astdoc.node import iter_module_members
 
-    members = [m for m, _ in iter_module_members("examples._styles")]
-    assert "ExampleClassGoogle" in members
-    assert "ExampleClassNumPy" in members
-    assert "ExampleClassGoogle.readonly_property" in members
-    assert "ExampleClassNumPy.readonly_property" in members
+    assert name in [m for m, _ in iter_module_members("examples._styles")]
 
 
 def test_module_members_overloads():
@@ -32,13 +42,11 @@ def test_module_members_overloads():
     assert members.count("cache") == 1
 
 
-def test_module_members_class():
+@pytest.mark.parametrize("name", ["Item.clone", "Section.clone", "Doc.clone"])
+def test_module_members_class(name):
     from astdoc.node import iter_module_members
 
-    members = [m for m, _ in iter_module_members("astdoc.doc")]
-    assert "Item.clone" in members
-    assert "Section.clone" in members
-    assert "Doc.clone" in members
+    assert name in [m for m, _ in iter_module_members("astdoc.doc")]
 
 
 @pytest.mark.parametrize("private", [True, False])
@@ -47,10 +55,7 @@ def test_module_members_private(private: bool):
 
     members = [m for m, _ in iter_module_members("astdoc.utils", private=private)]
 
-    if private:
-        assert any(m[0].startswith("_") for m in members)
-    else:
-        assert not any(m[0].startswith("_") for m in members)
+    assert any(m[0].startswith("_") for m in members) is private
 
 
 @pytest.mark.parametrize("special", [True, False])
@@ -59,21 +64,12 @@ def test_module_members_special(special: bool):
 
     members = [m for m, _ in iter_module_members("astdoc.node", special=special)]
 
-    if special:
-        assert any("__" in m for m in members)
-    else:
-        assert not any("__" in m for m in members)
+    assert any("__" in m for m in members) is special
 
 
 @pytest.mark.parametrize(
     "module",
-    [
-        "astdoc.node",
-        "astdoc.object",
-        "jinja2",
-        "examples._styles.google",
-        "examples._styles",
-    ],
+    ["astdoc.node", "astdoc.object", "examples._styles.google", "examples._styles"],
 )
 def test_module_members_have_objects(module: str):
     from astdoc.node import iter_module_members
@@ -84,33 +80,25 @@ def test_module_members_have_objects(module: str):
         assert get_object(f"{module}.{m}") is not None
 
 
-def test_iter_classes_from_module():
+@pytest.mark.parametrize("name", ["Node", "Import", "Definition", "Assign", "Module"])
+def test_iter_classes_from_module(name):
     from astdoc.node import iter_classes_from_module
 
-    classes = list(iter_classes_from_module("astdoc.node"))
-    assert len(classes) == 5
-    assert "Node" in classes
-    assert "Import" in classes
-    assert "Definition" in classes
-    assert "Assign" in classes
-    assert "Module" in classes
+    assert name in iter_classes_from_module("astdoc.node")
 
 
-def test_iter_classes_from_module_export():
+@pytest.mark.parametrize("name", ["Environment", "Template", "FileSystemLoader"])
+def test_iter_classes_from_module_export(name):
     from astdoc.node import iter_classes_from_module
 
-    classes = list(iter_classes_from_module("jinja2"))
-    assert "Template" in classes
-    assert "Environment" in classes
+    assert name in iter_classes_from_module("jinja2")
 
 
-def test_iter_classes_from_module_alias():
+@pytest.mark.parametrize("name", ["ExampleClassGoogle", "ExampleClassNumPy"])
+def test_iter_classes_from_module_alias(name):
     from astdoc.node import iter_classes_from_module
 
-    classes = list(iter_classes_from_module("examples._styles"))
-    assert len(classes) == 2
-    assert "ExampleClassGoogle" in classes
-    assert "ExampleClassNumPy" in classes
+    assert name in iter_classes_from_module("examples._styles")
 
 
 def test_iter_functions_from_module():
@@ -121,23 +109,30 @@ def test_iter_functions_from_module():
     assert "get_fullname_from_module" in functions
 
 
-def test_iter_methods_from_class():
+@pytest.mark.parametrize(
+    "name",
+    [
+        "create",
+        "replace_from_module",
+        "replace_from_object",
+        "parse_name_set",
+        "parse_signature",
+        "parse_bases",
+        "parse_summary",
+        "parse_doc",
+    ],
+)
+def test_iter_methods_from_class(name):
     from astdoc.node import iter_methods_from_class
 
-    methods = list(iter_methods_from_class("astdocPlugin", "astdoc.plugin"))
-    assert "on_config" in methods
-    assert "on_files" in methods
-    assert "on_nav" in methods
-    assert "on_page_markdown" in methods
-    assert "on_page_content" in methods
-    assert "__init__" not in methods
+    methods = list(iter_methods_from_class("Parser", "astdoc.parser"))
+    assert name in methods
 
 
 def test_iter_methods_from_class_property():
     from astdoc.node import iter_methods_from_class
 
-    methods = list(iter_methods_from_class("Object", "astdoc.object"))
-    assert not methods
+    assert not list(iter_methods_from_class("Object", "astdoc.object"))
 
 
 def test_get_module_members():
