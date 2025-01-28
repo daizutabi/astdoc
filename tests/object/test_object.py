@@ -3,6 +3,8 @@ import inspect
 
 import pytest
 
+from astdoc.object import Class
+
 
 def test_create_module():
     from astdoc.object import create_module
@@ -158,59 +160,53 @@ def test_get_source_examples():
 
 
 @pytest.fixture
-def astdocplugin():
-    from astdoc.object import Class, create_module
+def parser():
+    from astdoc.object import create_module
 
-    module = create_module("astdoc.plugin")
+    module = create_module("astdoc.parser")
     assert module
-    cls = module.get("astdocPlugin")
+    cls = module.get("Parser")
     assert isinstance(cls, Class)
     return cls
 
 
-@pytest.mark.parametrize("name", ["on_config", "dirty"])
-def test_is_child(astdocplugin, name):
+@pytest.mark.parametrize("name", ["replace_from_module", "replace_from_object"])
+def test_is_child(parser: Class, name):
     from astdoc.object import is_child
 
-    for name_, obj in astdocplugin.children.items():
+    for name_, obj in parser.children.items():
         if name_ == name:
-            assert is_child(obj, astdocplugin)
-
-
-@pytest.mark.parametrize("name", ["config_class", "config", "on_serve", "_is_protocol"])
-def test_is_not_child(astdocplugin, name):
-    from astdoc.object import is_child
-
-    for name_, obj in astdocplugin.children.items():
-        if name_ == name:
-            assert not is_child(obj, astdocplugin)
+            assert is_child(obj, parser)
 
 
 @pytest.mark.parametrize("attr", ["", ".example_method"])
-def test_get_object_class(attr):
+@pytest.mark.parametrize(
+    ("name", "module"),
+    [
+        ("examples._styles.ExampleClassGoogle", None),
+        ("ExampleClassGoogle", "examples._styles"),
+    ],
+)
+def test_get_object_class(attr, name, module):
     from astdoc.object import get_object
 
-    module = "examples._styles.google"
+    x = get_object(f"{name}{attr}", module)
+    assert x
+    assert x.module == "examples._styles.google"
     qualname = f"ExampleClass{attr}"
-    x = get_object(f"examples._styles.ExampleClassGoogle{attr}")
-    assert x
-    assert x.module == module
-    assert x.qualname == qualname
-    assert x.name == qualname.split(".")[-1]
-
-    x = get_object(f"ExampleClassGoogle{attr}", "examples._styles")
-    assert x
-    assert x.module == module
     assert x.qualname == qualname
     assert x.name == qualname.split(".")[-1]
 
 
 def test_get_object_cache():
-    from astdoc.object import Class, Function, create_module, get_object
+    from astdoc.object import create_module, get_object
 
-    module = create_module("astdoc.object")
-    a = get_object("astdoc.object")
-    assert module is a
+    assert create_module("astdoc.object") is get_object("astdoc.object")
+
+
+def test_get_object_cache_():
+    from astdoc.object import Class, Function, get_object
+
     c = get_object("astdoc.object.Object")
     f = get_object("astdoc.object.Module.__post_init__")
     assert isinstance(c, Class)
