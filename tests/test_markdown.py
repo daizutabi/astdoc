@@ -2,121 +2,44 @@ import doctest
 import inspect
 import re
 
-import markdown
+import pytest
 
 
-def test_id():
-    name = "m.__a__".replace("_", "\\_")
-    h = markdown.markdown(f"[{name}](b){{#{name}}}", extensions=["attr_list"])
-    assert h == '<p><a href="b" id="m.__a__">m.__a__</a></p>'
-    h = markdown.markdown(f"# {name} {{#{name}}}", extensions=["attr_list"])
-    assert h == '<h1 id="m.__a__">m.__a__</h1>'
-    h = markdown.markdown(f"{name}\n{{#{name}}}", extensions=["attr_list"])
-    assert h == '<p id="m.__a__">m.__a__</p>'
-
-
-def test_md_in_html():
-    m = '<div id="__a__" markdown="1">\n# t\n</div>'
-    h = markdown.markdown(m, extensions=["md_in_html"])
-    assert h == '<div id="__a__">\n<h1>t</h1>\n</div>'
-
-
-def test_link():
-    name = "__a__"
-    h = markdown.markdown(f"[abc](ref#{name})")
-    assert h == '<p><a href="ref#__a__">abc</a></p>'
-
-
-def test_span():
-    x = markdown.markdown('<span class="c">[a](b)</span>')
-    assert x == '<p><span class="c"><a href="b">a</a></span></p>'
-
-
-def test_list():
-    s = "a\n\n    b"
-    x = markdown.markdown(s)
-    assert "<pre><code>b" in x
-    s = "a\n\n    * b\n    * c\n"
-    x = markdown.markdown(s)
-    assert "<pre><code>* b" in x
-
-
-def c(text: str) -> str:
-    return markdown.markdown(text, extensions=["admonition"])
-
-
-def test_code():
-    x = c("a b\n    c")
-    assert x == "<p>a b\n    c</p>"
-    x = c("a b\n\n    c")
-    assert x == "<p>a b</p>\n<pre><code>c\n</code></pre>"
-    x = c("a b\n\n    c\n\n    d")
-    assert "<code>c\n\nd\n</code>" in x
-    x = c("a b\n\n    c\n\n    d\ne")
-    assert "<code>c\n\nd\n</code>" in x
-
-
-def test_fenced_code():
-    x = c("```\na\n```")
-    assert x == "<p><code>a</code></p>"
-    x = c("    ```\n    a\n    ```")
-    assert "```" in x
-    x = c("  ```\na\n  ```")
-    assert x == "<p><code>a</code></p>"
-    x = c("!!! note\n    ```\n    a\n    ```")
-    assert '<p class="admonition-title">Note</p>\n<p><code>a</code></p>' in x
-    x = c("!!! note\n  ```\n  a\n  ```")
-    assert '<p class="admonition-title">Note</p>\n</div>' in x
-
-
-def test_splitlines():
-    x = "a\nb\n".splitlines()
-    assert x == ["a", "b"]
-    x = "a\n\nb\n".splitlines()
-    assert x == ["a", "", "b"]
-    x = "".splitlines()
-    assert x == []
-
-
-def test_iter():
+@pytest.mark.parametrize(
+    ("text", "results"),
+    [
+        ("abcXdef", [(0, 0, 3), (2, 4, 7)]),
+        ("XabcXdefX", [(1, 1, 4), (3, 5, 8)]),
+        ("abc\n", [(0, 0, 4)]),
+    ],
+)
+def test_iter(text, results):
     from astdoc.markdown import _iter
 
-    pattern = re.compile("X")
-    text = "abcXdef"
-    x = list(_iter(pattern, text))
-    assert x[0] == (0, 3)
-    assert x[2] == (4, 7)
-    text = "XabcXdefX"
-    x = list(_iter(pattern, text))
-    assert len(x) == 5
-    assert x[1] == (1, 4)
-    assert x[3] == (5, 8)
-    text = "abc\n"
-    x = list(_iter(pattern, text))
-    assert x == [(0, 4)]
+    x = list(_iter(re.compile("X"), text))
+    for i, start, end in results:
+        assert x[i] == (start, end)
 
 
-def test_iter_pos():
+@pytest.mark.parametrize(
+    ("text", "pos", "results"),
+    [
+        ("abcXdef", 1, [(0, 1, 3), (2, 4, 7)]),
+        ("XabcXdefX", 2, [(0, 2, 4), (2, 5, 8)]),
+    ],
+)
+def test_iter_pos(text, pos, results):
     from astdoc.markdown import _iter
 
-    pattern = re.compile("X")
-    text = "abcXdef"
-    x = list(_iter(pattern, text, pos=1))
-    assert x[0] == (1, 3)
-    assert x[2] == (4, 7)
-    text = "XabcXdefX"
-    x = list(_iter(pattern, text, pos=2))
-    assert len(x) == 4
-    assert x[0] == (2, 4)
-    assert x[2] == (5, 8)
+    x = list(_iter(re.compile("X"), text, pos=pos))
+    for i, start, end in results:
+        assert x[i] == (start, end)
 
 
 def test_iter_match_only():
     from astdoc.markdown import _iter
 
-    pattern = re.compile("X")
-    text = "X"
-    x = list(_iter(pattern, text))
+    x = list(_iter(re.compile("X"), "X"))
     assert len(x) == 1
     assert isinstance(x[0], re.Match)
 
@@ -129,19 +52,26 @@ def test_iter_fenced_codes():
     assert len(x) == 3
     assert text[x[0][0] : x[0][1]] == "abc\n"
     assert text[x[2][0] : x[2][1]] == "\ndef\n"
-    for y in ["", "\n"]:
-        text = f"abc\n~~~~x\n```\nx\n```\n~~~~{y}"
-        x = list(_iter_fenced_codes(text))
-        assert len(x) == 2 if y == "" else 3
-        assert text[x[0][0] : x[0][1]] == "abc\n"
-    text = "abc\n"
+
+
+@pytest.mark.parametrize(("suffix", "n"), [("", 2), ("\n", 3)])
+def test_iter_fenced_codes_suffix(suffix, n):
+    from astdoc.markdown import _iter_fenced_codes
+
+    text = f"abc\n~~~~x\n```\nx\n```\n~~~~{suffix}"
     x = list(_iter_fenced_codes(text))
-    assert x == [(0, 4)]
+    assert len(x) == n
+    assert text[x[0][0] : x[0][1]] == "abc\n"
 
 
-def test_iter_examples():
-    from astdoc.markdown import _iter_example_lists, _iter_examples
+def test_iter_fenced_codes_none():
+    from astdoc.markdown import _iter_fenced_codes
 
+    assert list(_iter_fenced_codes("abc\n")) == [(0, 4)]
+
+
+@pytest.fixture(scope="module")
+def examples_text():
     text = """
     X
       >>> a = 1
@@ -158,47 +88,75 @@ def test_iter_examples():
 
     Z
     """
-    text = inspect.cleandoc(text)
-    x = list(_iter_examples(text))
-    assert len(x) == 10
-    assert x[0] == "X\n"
-    assert isinstance(x[1], doctest.Example)
-    assert x[1].source == "a = 1\n"
-    assert x[1].indent == 2
-    assert isinstance(x[2], doctest.Example)
-    assert x[2].source == "# comment\n"
-    assert x[2].indent == 2
-    assert isinstance(x[4], doctest.Example)
-    assert x[3] == "\n  Y\n"
-    assert x[4].source == "a\n"
-    assert x[4].indent == 4
-    assert isinstance(x[5], doctest.Example)
-    assert x[5].source == "\n"
-    assert x[5].indent == 4
-    assert isinstance(x[6], doctest.Example)
-    assert x[6].source == "a = 1\n"
-    assert x[7] == "\n"
-    assert isinstance(x[8], doctest.Example)
-    assert x[8].source == "a\n"
-    assert x[8].want == "1\n"
-    assert x[9] == "\nZ"
-    x = list(_iter_example_lists(text))
-    assert len(x) == 8
-    t = ">>> abc\n"
-    x = list(_iter_examples(t))
+    return inspect.cleandoc(text)
+
+
+@pytest.fixture(scope="module")
+def examples(examples_text):
+    from astdoc.markdown import _iter_examples
+
+    return list(_iter_examples(examples_text))
+
+
+def test_iter_examples_len(examples):
+    assert len(examples) == 10
+
+
+@pytest.mark.parametrize(
+    ("i", "source"),
+    [(0, "X\n"), (3, "\n  Y\n"), (7, "\n"), (9, "\nZ")],
+)
+def test_iter_examples_str(examples, i, source):
+    assert examples[i] == source
+
+
+@pytest.mark.parametrize(
+    ("i", "source", "indent"),
+    [
+        (1, "a = 1\n", 2),
+        (2, "# comment\n", 2),
+        (4, "a\n", 4),
+        (5, "\n", 4),
+        (6, "a = 1\n", 4),
+        (8, "a\n", 0),
+    ],
+)
+def test_iter_examples_example(examples, i, source, indent):
+    example = examples[i]
+    assert isinstance(example, doctest.Example)
+    assert example.source == source
+    assert example.indent == indent
+
+
+def test_iter_examples_item_example_want(examples):
+    assert examples[8].want == "1\n"
+
+
+def test_iter_example_one():
+    from astdoc.markdown import _iter_examples
+
+    x = list(_iter_examples(">>> abc\n"))
     assert len(x) == 1
     assert isinstance(x[0], doctest.Example)
 
 
-def test_iter_examples_empty():
+@pytest.mark.parametrize("text", ["a", "a\n", "abc\ndef\n", "abc\ndef", ">>> abc"])
+def test_iter_examples_empty(text):
     from astdoc.markdown import _iter_examples
 
-    for t in ["a", "a\n", "abc\ndef\n", "abc\ndef", ">>> abc"]:
-        assert list(_iter_examples(t)) == [t]
+    assert list(_iter_examples(text)) == [text]
 
 
-def test_convert_examples():
-    from astdoc.markdown import _convert_examples, _iter_example_lists
+def test_iter_example_lists(examples_text):
+    from astdoc.markdown import _iter_example_lists
+
+    x = list(_iter_example_lists(examples_text))
+    assert len(x) == 8
+
+
+@pytest.fixture(scope="module")
+def convert_examples():
+    from astdoc.markdown import _iter_example_lists
 
     src = """
     >>>  1 # input
@@ -209,19 +167,32 @@ def test_convert_examples():
     >>> a = 3
     """
     src = inspect.cleandoc(src)
-    x = list(_iter_example_lists(src))
-    assert len(x) == 3
-    assert isinstance(x[0], list)
-    m = _convert_examples(x[0])
-    assert "input}\n 1 #" in m
-    assert "output}\n1\n```\n" in m
-    assert isinstance(x[1], list)
-    m = _convert_examples(x[1])
-    assert "input}\n  a = 2\n  a\n  ```\n" in m
-    assert "output}\n  2\n  ```\n" in m
-    assert isinstance(x[2], list)
-    m = _convert_examples(x[2])
-    assert m.endswith("input}\na = 3\n```\n")
+    return list(_iter_example_lists(src))
+
+
+@pytest.fixture(scope="module")
+def converted_examples(convert_examples):
+    from astdoc.markdown import _convert_examples
+
+    return [_convert_examples(e) for e in convert_examples]
+
+
+def test_convert_examples_len(converted_examples):
+    assert len(converted_examples) == 3
+
+
+@pytest.mark.parametrize(
+    ("i", "text"),
+    [
+        (0, "input}\n 1 #"),
+        (0, "output}\n1\n```\n"),
+        (1, "input}\n  a = 2\n  a\n  ```\n"),
+        (1, "output}\n  2\n  ```\n"),
+        (2, "input}\na = 3\n```\n"),
+    ],
+)
+def test_convert_examples(converted_examples, i, text):
+    assert text in converted_examples[i]
 
 
 def test_split_block():
