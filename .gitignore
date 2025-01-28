@@ -1,0 +1,7 @@
+.coverage
+.venv/
+__pycache__/
+dist/
+lcov.info
+site/
+uv.lock
