@@ -210,7 +210,9 @@ def test_parse_signature():
     assert signature[3][1] == "ann"
     assert signature[4] == (")", "paren")
     assert signature[5] == (" → ", "arrow")
-    assert signature[6][0].startswith("[Iterator][__astdoc__.collections.abc.Iterator][")
+    assert signature[6][0].startswith(
+        "[Iterator][__astdoc__.collections.abc.Iterator][",
+    )
     assert signature[6][1] == "return"
 
 
@@ -272,20 +274,18 @@ def test_parse_doc_class_attrs(doc_class: Doc):
 def test_parse_bases():
     from astdoc.parser import Parser
 
-    name = "astdoc.plugin.astdocPlugin"
+    name = "astdoc.object.Function"
     parser = Parser.create(name)
     assert parser
     bases = parser.parse_bases()
     assert len(bases) == 1
-    base = bases[0]
-    assert base.startswith("[BasePlugin][__astdoc__.mkdocs.plugins.BasePlugin]")
-    assert base.endswith("[[astdocConfig][__astdoc__.astdoc.config.astdocConfig]]")
+    assert bases[0] == "[Definition][__astdoc__.astdoc.object.Definition]"
 
 
 def test_parse_bases_empty():
     from astdoc.parser import Parser
 
-    name = "astdoc.plugin"
+    name = "astdoc.parser"
     parser = Parser.create(name)
     assert parser
     assert parser.parse_bases() == []
@@ -294,7 +294,7 @@ def test_parse_bases_empty():
 def test_parse_signature_empty():
     from astdoc.parser import Parser
 
-    name = "astdoc.plugin"
+    name = "astdoc.parser"
     parser = Parser.create(name)
     assert parser
     assert parser.parse_signature() == []
