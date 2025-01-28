@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "astdoc"
 version = "0.0.1"
-description = ""
+description = "A lightweight library for parsing AST and extracting docstring information in Python."
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [{ name = "daizutabi", email = "daizutabi@gmail.com" }]
@@ -20,13 +20,7 @@ classifiers = [
   "Topic :: Software Development :: Documentation",
 ]
 requires-python = ">=3.10"
-dependencies = [
-  "jinja2",
-  "mkdocs-material",
-  "mkdocs>=1.6.0",
-  "rich",
-  "tomli>=1.1.0; python_version<'3.11'",
-]
+dependencies = ["markdown>=3"]
 
 [project.urls]
 Documentation = "https://daizutabi.github.io/astdoc/"
@@ -35,6 +29,9 @@ Issues = "https://github.com/daizutabi/astdoc/issues"
 
 [tool.uv]
 dev-dependencies = [
+  "jinja2",
+  "mkapi",
+  "mkdocs-material",
   "pytest-clarity",
   "pytest-cov",
   "pytest-randomly",
