@@ -1,6 +1,8 @@
 import ast
 import inspect
 
+import pytest
+
 
 def test_create_class_nested():
     from astdoc.object import Class, create_class
@@ -68,24 +70,14 @@ def test_class_parameters():
     assert find_item_by_name(cls.parameters, "parent")
 
 
-def test_inherit_base_classes_config():
+def test_inherit_base_classes_parser():
     from astdoc.object import Class, create_module
 
-    module = create_module("astdoc.config")
+    module = create_module("astdoc.parser")
     assert module
-    cls = module.get("astdocConfig")
+    cls = module.get("Parser")
     assert isinstance(cls, Class)
-    assert cls.get("config_file_path")
-
-
-def test_inherit_base_classes_plugin():
-    from astdoc.object import Class, create_module
-
-    module = create_module("astdoc.plugin")
-    assert module
-    cls = module.get("astdocPlugin")
-    assert isinstance(cls, Class)
-    assert cls.get("on_page_read_source")
+    assert cls.get("replace_from_module")
 
 
 def test_inherit_base_classes_ast():
@@ -164,14 +156,21 @@ def test_children_order():
     assert names[-1] == "fullname"
 
 
-def test_enum():
+@pytest.mark.parametrize(
+    "name",
+    [
+        "name",
+        "value",
+        "POSITIONAL_ONLY",
+        "POSITIONAL_OR_KEYWORD",
+        "VAR_POSITIONAL",
+        "KEYWORD_ONLY",
+        "VAR_KEYWORD",
+    ],
+)
+def test_enum(name):
     from astdoc.object import Class, get_object
 
-    cls = get_object("astdoc.page.PageKind")
+    cls = get_object("inspect._ParameterKind")
     assert isinstance(cls, Class)
-    names = [name for name, _ in cls.get_children()]
-    assert "name" in names
-    assert "value" in names
-    assert "OBJECT" in names
-    assert "SOURCE" in names
-    assert "DOCUMENTATION" in names
+    assert name in [name for name, _ in cls.get_children()]
