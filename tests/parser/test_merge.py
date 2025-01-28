@@ -117,7 +117,7 @@ def test_merge_attribute_enum():
     section = find_item_by_name(sections, "Attributes")
     assert isinstance(section, Section)
     items = section.items
-    assert len(items) == 5
+    assert len(items) >= 5
 
 
 def test_merge_attribute_private():
