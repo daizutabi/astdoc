@@ -1,3 +1,6 @@
+import pytest
+
+
 def test_classes_fom_module():
     from astdoc.parser import create_classes_from_module
 
@@ -33,15 +36,20 @@ def test_functions_from_module():
     assert any(name in n for n in names)
 
 
-def test_methods_from_class():
+@pytest.mark.parametrize(
+    "name",
+    [
+        "[create][__astdoc__.astdoc.parser.Parser.create]",
+        "[parse\\_name\\_set][__astdoc__.astdoc.parser.Parser.parse_name_set]",
+    ],
+)
+def test_methods_from_class(name):
     from astdoc.parser import create_methods_from_class
 
-    section = create_methods_from_class("astdocPlugin", "astdoc.plugin")
+    section = create_methods_from_class("Parser", "astdoc.parser")
     assert section
     assert section.name == "Methods"
-    names = [i.name for i in section.items]
-    name = "[on\\_nav][__astdoc__.astdoc.plugin.astdocPlugin.on_nav]"
-    assert any(name in n for n in names)
+    assert any(name in i.name for i in section.items)
 
 
 def test_methods_from_class_property():
