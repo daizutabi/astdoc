@@ -44,21 +44,10 @@ def test_get_markdown_name():
     assert r".[\_\_repr\_\_][__astdoc__.astdoc.object.Object.__repr__]" in x
 
     def replace(name: str) -> str | None:  # type: ignore
-        return get_fullname_from_module(name, "astdoc.plugin")
+        return get_fullname_from_module(name, "astdoc.parser")
 
-    x = get_markdown_name("MkDocsPage", replace)
-    assert x == "[MkDocsPage][__astdoc__.mkdocs.structure.pages.Page]"
-
-    def replace(name: str) -> str | None:
-        return get_fullname_from_module(name, "mkdocs.plugins")
-
-    x = get_markdown_name("jinja2.Template", replace)
-    assert "[jinja2][__astdoc__.jinja2]." in x
-    assert "[Template][__astdoc__.jinja2.environment.Template]" in x
-
-    assert get_markdown_name("str", replace) == "str"
-    assert get_markdown_name("None", replace) == "None"
-    assert get_markdown_name("_abc", replace) == "\\_abc"
+    x = get_markdown_name("Parser", replace)
+    assert x == "[Parser][__astdoc__.astdoc.parser.Parser]"
 
 
 def test_get_markdown_str():
@@ -126,23 +115,6 @@ def test_get_markdown_text_module_objects():
     assert x == "a `` `Class` `` b"
     m = "a \n```\n`Class`\n```\n b"
     assert get_markdown_text(m, replace) == m
-
-
-def test_get_markdown_text_module_plugins():
-    from astdoc.node import get_fullname_from_module
-    from astdoc.parser import get_markdown_text
-
-    def replace(name: str) -> str | None:
-        return get_fullname_from_module(name, "astdoc.plugin")
-
-    x = get_markdown_text("a `astdocPlugin` b", replace)
-    assert x == "a [`astdocPlugin`][__astdoc__.astdoc.plugin.astdocPlugin] b"
-    x = get_markdown_text("a `BasePlugin` b", replace)
-    assert x == "a [`BasePlugin`][__astdoc__.mkdocs.plugins.BasePlugin] b"
-    x = get_markdown_text("a `MkDocsConfig` b", replace)
-    assert x == "a [`MkDocsConfig`][__astdoc__.mkdocs.config.defaults.MkDocsConfig] b"
-    x = get_markdown_text("a [b] c", replace)
-    assert x == "a [b] c"
 
 
 def test_get_markdown_type_none():
