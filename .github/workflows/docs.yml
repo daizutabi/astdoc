@@ -24,4 +24,4 @@ jobs:
       - name: Install package
         run: uv sync
       - name: Deploy documentation
-        run: mkdocs gh-deploy --force
+        run: uv run mkdocs gh-deploy --force
