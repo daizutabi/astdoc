@@ -12,3 +12,13 @@ tools for developers to easily access, manipulate, and generate
 documentation from Python code. With support for various docstring
 styles, astdoc aims to enhance code readability and maintainability
 by making documentation generation seamless and efficient.
+
+<!-- Badges -->
+[pypi-v-image]: https://img.shields.io/pypi/v/astdoc.svg
+[pypi-v-link]: https://pypi.org/project/astdoc/
+[python-v-image]: https://img.shields.io/pypi/pyversions/astdoc.svg
+[python-v-link]: https://pypi.org/project/astdoc
+[GHAction-image]: https://github.com/daizutabi/astdoc/actions/workflows/ci.yml/badge.svg?branch=main&event=push
+[GHAction-link]: https://github.com/daizutabi/astdoc/actions?query=event%3Apush+branch%3Amain
+[codecov-image]: https://codecov.io/github/daizutabi/astdoc/coverage.svg?branch=main
+[codecov-link]: https://codecov.io/github/daizutabi/astdoc?branch=main
