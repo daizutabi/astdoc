@@ -9,9 +9,7 @@ A lightweight Python library for parsing and analyzing abstract
 syntax trees (AST) and extracting docstring information.
 Designed to facilitate the documentation process, astdoc provides
 tools for developers to easily access, manipulate, and generate
-documentation from Python code. With support for various docstring
-styles, astdoc aims to enhance code readability and maintainability
-by making documentation generation seamless and efficient.
+documentation from Python code.
 
 <!-- Badges -->
 [pypi-v-image]: https://img.shields.io/pypi/v/astdoc.svg
