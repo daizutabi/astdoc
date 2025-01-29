@@ -39,6 +39,16 @@ def test_create_class(get):
         assert isinstance(cls.get(x), Property)
 
 
+def test_create_class_cache(get):
+    from astdoc.object import create_class
+
+    node = get("ExampleClass")
+    assert isinstance(node, ast.ClassDef)
+    cls = create_class(node, "test_create_class", None)
+    cls2 = create_class(node, "test_create_class", None)
+    assert cls is cls2
+
+
 def test_inherit():
     from astdoc.object import Class, Function, create_module
 

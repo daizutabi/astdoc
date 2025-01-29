@@ -132,6 +132,14 @@ def test_find_item_by_name():
     assert not find_item_by_name(x, "d")
 
 
+def test_find_item_by_name_none():
+    from astdoc.utils import find_item_by_name
+
+    A = namedtuple("A", ["name", "value"])  # noqa: PYI024
+    x = [A("a", 1), A("a", 2), A("b", 3), A("c", 4)]
+    assert find_item_by_name(x, ["d", "e"]) is None
+
+
 def test_find_item_by_kind():
     from astdoc.utils import find_item_by_kind
 

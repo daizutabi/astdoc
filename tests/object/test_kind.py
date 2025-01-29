@@ -35,3 +35,9 @@ def test_object_kind_async_staticmethod():
     obj = get_object("examples.object.Kind.async_static_method")
     assert obj
     assert obj.kind == "async staticmethod"
+
+
+def test_object_kind_enum():
+    obj = get_object("inspect._ParameterKind")
+    assert obj
+    assert obj.kind == "enum"

@@ -67,6 +67,12 @@ def test_iter_objects():
     assert next(objs).name == "c"
 
 
+def test_iter_objects_none():
+    from astdoc.object import iter_objects
+
+    assert not list(iter_objects(None))  # type: ignore
+
+
 def test_get_object_kind_package():
     from astdoc.object import create_module, get_object_kind
 
@@ -179,6 +185,32 @@ def test_is_child(parser: Class, name):
             assert is_child(obj, parser)
 
 
+def test_is_child_true_parent_none():
+    from astdoc.object import get_object, is_child
+
+    obj = get_object("ast.parse")
+    assert obj
+    assert is_child(obj, None)
+
+
+def test_is_child_true_obj_module():
+    from astdoc.object import get_object, is_child
+
+    obj = get_object("ast")
+    assert obj
+    assert is_child(obj, None)
+
+
+def test_is_child_true_parent_module():
+    from astdoc.object import get_object, is_child
+
+    obj = get_object("ast")
+    module = get_object("inspect")
+    assert obj
+    assert module
+    assert is_child(obj, module)
+
+
 @pytest.mark.parametrize("attr", ["", ".example_method"])
 @pytest.mark.parametrize(
     ("name", "module"),
@@ -271,3 +303,12 @@ def test_get_object_export():
     assert obj.name == "compile"
     assert obj.module == "jinja2.environment"
     assert obj.fullname == "jinja2.environment.Environment.compile"
+
+
+def test_object_repr():
+    from astdoc.object import get_object
+
+    name = "astdoc"
+    obj = get_object(name)
+    assert obj
+    assert repr(obj) == "Module('astdoc')"

@@ -513,10 +513,8 @@ def _iter_sections(text: str, style: Style) -> Iterator[tuple[str, str]]:
             continue
 
         name, text = split_section(section, style)
-        if not text:
-            continue
-
         name = _rename_section(name)
+
         if prev_name == name == "":  # successive 'plain' section.
             prev_text = f"{prev_text}\n\n{text}" if prev_text else text
             continue

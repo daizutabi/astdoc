@@ -81,7 +81,7 @@ def test_get_signature():
     assert s[-1].kind == "return"
 
 
-def test_get_signature_attribute():
+def test_get_signature_attribute_annassign():
     from astdoc.object import Attribute, create_attribute
     from astdoc.parser import get_signature
 
@@ -96,6 +96,19 @@ def test_get_signature_attribute():
     assert isinstance(s[-1].name, ast.expr)
     assert ast.unparse(s[-1].name) == "int"
     assert s[-1].kind == "return"
+
+
+def test_get_signature_attribute_assign():
+    from astdoc.object import Attribute, create_attribute
+    from astdoc.parser import Signature, get_signature
+
+    src = """x=1"""
+    node = ast.parse(src).body[0]
+    assert isinstance(node, ast.Assign)
+    attr = create_attribute("x", node, "", None)
+    assert isinstance(attr, Attribute)
+    s = get_signature(attr)
+    assert s == Signature([])
 
 
 def test_signature_len():
