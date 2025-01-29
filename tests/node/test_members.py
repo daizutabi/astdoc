@@ -109,24 +109,10 @@ def test_iter_functions_from_module():
     assert "get_fullname_from_module" in functions
 
 
-@pytest.mark.parametrize(
-    "name",
-    [
-        "create",
-        "replace_from_module",
-        "replace_from_object",
-        "parse_name_set",
-        "parse_signature",
-        "parse_bases",
-        "parse_summary",
-        "parse_doc",
-    ],
-)
-def test_iter_methods_from_class(name):
+def test_iter_methods_from_class():
     from astdoc.node import iter_methods_from_class
 
-    methods = list(iter_methods_from_class("Parser", "astdoc.parser"))
-    assert name in methods
+    assert "clone" in iter_methods_from_class("Doc", "astdoc.doc")
 
 
 def test_iter_methods_from_class_property():

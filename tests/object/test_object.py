@@ -169,9 +169,9 @@ def test_get_source_examples():
 def parser():
     from astdoc.object import create_module
 
-    module = create_module("astdoc.parser")
+    module = create_module("astdoc.object")
     assert module
-    cls = module.get("Parser")
+    cls = module.get("Function")
     assert isinstance(cls, Class)
     return cls
 

@@ -138,3 +138,41 @@ def test_create_doc_code_block():
     ```
     """
     assert doc.text == inspect.cleandoc(d)
+
+
+def test_item_clone():
+    from astdoc.doc import Item
+
+    item = Item("name", "int", "text").clone()
+    assert item.name == "name"
+    assert item.type == "int"
+    assert item.text == "text"
+
+
+def test_section_clone():
+    from astdoc.doc import Item, Section
+
+    item = Item("item", "int", "item-text")
+    section = Section("section", "str", "section-text", [item]).clone()
+    assert section.name == "section"
+    assert section.type == "str"
+    assert section.text == "section-text"
+    assert section.items[0].name == "item"
+    assert section.items[0].type == "int"
+    assert section.items[0].text == "item-text"
+
+
+def test_doc_clone():
+    from astdoc.doc import Doc, Item, Section
+
+    item = Item("item", "int", "item-text")
+    section = Section("section", "str", "section-text", [item])
+    doc = Doc("doc", "list", "doc-text", [section]).clone()
+    assert doc.type == "list"
+    assert doc.text == "doc-text"
+    assert doc.sections[0].name == "section"
+    assert doc.sections[0].type == "str"
+    assert doc.sections[0].text == "section-text"
+    assert doc.sections[0].items[0].name == "item"
+    assert doc.sections[0].items[0].type == "int"
+    assert doc.sections[0].items[0].text == "item-text"
