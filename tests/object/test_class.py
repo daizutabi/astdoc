@@ -83,11 +83,11 @@ def test_class_parameters():
 def test_inherit_base_classes_parser():
     from astdoc.object import Class, create_module
 
-    module = create_module("astdoc.parser")
+    module = create_module("astdoc.doc")
     assert module
-    cls = module.get("Parser")
+    cls = module.get("Section")
     assert isinstance(cls, Class)
-    assert cls.get("replace_from_module")
+    assert cls.get("clone")
 
 
 def test_inherit_base_classes_ast():

@@ -112,8 +112,8 @@ def test_get_fullname_qualname_alias(attr):
 def test_get_fullname_self():
     from astdoc.node import get_fullname_from_module
 
-    name = "Parser"
-    module = "astdoc.parser"
+    name = "Class"
+    module = "astdoc.object"
     assert get_fullname_from_module(name, module) == f"{module}.{name}"
 
 
@@ -140,8 +140,8 @@ def test_get_fullname_nested_none():
     [
         ("astdoc.doc.Item.clone", None, "astdoc.doc.Item.clone"),
         ("Item.clone", "astdoc.doc", "astdoc.doc.Item.clone"),
-        ("Item", "astdoc.parser", "astdoc.doc.Item"),
-        ("Item.clone", "astdoc.parser", "astdoc.doc.Item.clone"),
+        ("Doc", "astdoc.object", "astdoc.doc.Doc"),
+        ("Doc.clone", "astdoc.object", "astdoc.doc.Doc.clone"),
     ],
 )
 def test_get_fullname_method(name, module, expected):
