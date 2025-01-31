@@ -212,6 +212,7 @@ class Item:
     """A description or documentation text associated with the item."""
 
     def __repr__(self) -> str:
+        """Return a string representation of the `Item` instance."""
         return f"{self.__class__.__name__}({self.name!r})"
 
     def clone(self) -> Item:
@@ -697,6 +698,7 @@ class Doc(Item):
     within the documentation, such as Parameters, Returns, and Examples."""
 
     def __repr__(self) -> str:
+        """Return a string representation of the `Doc` instance."""
         return f"{self.__class__.__name__}(sections={len(self.sections)})"
 
     def clone(self) -> Doc:
