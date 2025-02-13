@@ -16,7 +16,7 @@ documentation from Python code.
 [pypi-v-link]: https://pypi.org/project/astdoc/
 [python-v-image]: https://img.shields.io/pypi/pyversions/astdoc.svg
 [python-v-link]: https://pypi.org/project/astdoc
-[GHAction-image]: https://github.com/daizutabi/astdoc/actions/workflows/ci.yml/badge.svg?branch=main&event=push
+[GHAction-image]: https://github.com/daizutabi/astdoc/actions/workflows/ci.yaml/badge.svg?branch=main&event=push
 [GHAction-link]: https://github.com/daizutabi/astdoc/actions?query=event%3Apush+branch%3Amain
 [codecov-image]: https://codecov.io/github/daizutabi/astdoc/coverage.svg?branch=main
 [codecov-link]: https://codecov.io/github/daizutabi/astdoc?branch=main
