@@ -27,8 +27,8 @@ Documentation = "https://github.com/daizutabi/astdoc"
 Source = "https://github.com/daizutabi/astdoc"
 Issues = "https://github.com/daizutabi/astdoc/issues"
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
   "jinja2",
   "pytest-clarity",
   "pytest-cov",
