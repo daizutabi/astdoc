@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "astdoc"
 version = "0.2.0"
-description = "A lightweight library for parsing AST and extracting docstring information in Python."
+description = "A library for parsing AST and extracting docstring information in Python."
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [{ name = "daizutabi", email = "daizutabi@gmail.com" }]
@@ -23,37 +23,21 @@ requires-python = ">=3.10"
 dependencies = ["markdown>=3"]
 
 [project.urls]
-Documentation = "https://daizutabi.github.io/astdoc/"
+Documentation = "https://github.com/daizutabi/astdoc"
 Source = "https://github.com/daizutabi/astdoc"
 Issues = "https://github.com/daizutabi/astdoc/issues"
 
 [tool.uv]
 dev-dependencies = [
   "jinja2",
-  "mkapi",
-  "mkdocs-material",
   "pytest-clarity",
   "pytest-cov",
   "pytest-randomly",
   "pytest-xdist",
 ]
 
-[tool.hatch.build.targets.sdist]
-exclude = ["/.github", "/docs"]
-
-[tool.hatch.build.targets.wheel]
-packages = ["src/astdoc"]
-
 [tool.pytest.ini_options]
 addopts = ["--doctest-modules", "--cov=astdoc", "--cov-report=lcov:lcov.info"]
-doctest_optionflags = ["NORMALIZE_WHITESPACE", "IGNORE_EXCEPTION_DETAIL"]
-filterwarnings = [
-  'ignore:datetime.datetime.utcfromtimestamp\(\) is deprecated:DeprecationWarning',
-  'ignore:\nPyarrow will become a required dependency:DeprecationWarning',
-]
-
-[tool.coverage.run]
-disable_warnings = ["module-not-measured"]
 
 [tool.coverage.report]
 exclude_lines = [
