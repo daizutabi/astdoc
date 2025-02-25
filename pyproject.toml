@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "astdoc"
-version = "1.0.0"
+version = "1.1.0"
 description = "A library for parsing AST and extracting docstring information in Python."
 readme = "README.md"
 license = { file = "LICENSE" }
