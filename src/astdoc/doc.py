@@ -323,23 +323,28 @@ def _split_sections(text: str, style: Style) -> Iterator[str]:
     pattern = SPLIT_SECTION_PATTERNS[style]
 
     if not (m := re.search("\n\n", text)):
-        yield text.strip()
+        yield text
         return
 
     start = m.end()
-    yield text[:start].strip()
+    yield text[:start]
 
     for m in astdoc.markdown.finditer(pattern, text, start):
-        yield from _subsplit(text[start : m.start()].strip(), style)
+        yield from _subsplit(text[start : m.start()], style)
         start = m.start()
 
-    yield from _subsplit(text[start:].strip(), style)
+    yield from _subsplit(text[start:], style)
 
 
 # In Numpy style, if a section is indented, then a section break is
 # created by resuming unindented text.
 def _subsplit(text: str, style: Style) -> list[str]:
-    if style == "google" or len(lines := text.splitlines()) < 3:
+    if style == "google":
+        return [text]
+
+    lines = text.strip().splitlines()
+
+    if len(lines) < 3:
         return [text]
 
     if not lines[2].startswith(" "):  # 2 == after '----' line.
@@ -510,10 +515,10 @@ def _iter_sections(text: str, style: Style) -> Iterator[tuple[str, str]]:
     """
     prev_name, prev_text = "", ""
     for section in _split_sections(text, style):
-        if not section:
+        if not section.strip():
             continue
 
-        name, text = split_section(section, style)
+        name, text = split_section(section.strip(), style)
         name = _rename_section(name)
 
         if prev_name == name == "":  # successive 'plain' section.
