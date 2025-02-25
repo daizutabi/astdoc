@@ -267,6 +267,23 @@ def _iter_example_lists(text: str) -> Iterator[list[doctest.Example] | str]:
 EXAMPLE_CLASS = {"input": "astdoc-example-input", "output": "astdoc-example-output"}
 
 
+def set_example_class(input_class: str, output_class: str) -> None:
+    """Set the class for a specific example type.
+
+    Modify the class attribute of the EXAMPLE_CLASS dictionary to
+    associate a specific example type with a given class name.
+
+    Args:
+        input_class (str): The class name to associate with
+            the input of examples.
+        output_class (str): The class name to associate with
+            the output of examples.
+
+    """
+    EXAMPLE_CLASS["input"] = input_class
+    EXAMPLE_CLASS["output"] = output_class
+
+
 def _convert_examples(examples: list[doctest.Example]) -> str:
     """Convert a list of doctest examples into Markdown format.
 

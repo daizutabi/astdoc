@@ -325,6 +325,23 @@ def test_convert_code_block_doctest_without_blank_line():
     assert convert_code_block(text) == expected
 
 
+def test_set_example_class():
+    from astdoc.markdown import EXAMPLE_CLASS, convert_code_block, set_example_class
+
+    input_class = EXAMPLE_CLASS["input"]
+    output_class = EXAMPLE_CLASS["output"]
+
+    set_example_class("input", "output")
+
+    text = "a\n>>> b\n1\n>>> c\n2\n"
+    text = convert_code_block(text)
+    assert "```{.python .input}" in text
+    assert "```{.text .output}" in text
+
+    EXAMPLE_CLASS["input"] = input_class
+    EXAMPLE_CLASS["output"] = output_class
+
+
 def test_finditer():
     from astdoc.markdown import _finditer, convert_code_block
 
