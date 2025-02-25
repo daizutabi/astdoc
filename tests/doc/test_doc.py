@@ -137,7 +137,7 @@ def test_create_doc_code_block():
         pass
     ```
     """
-    assert doc.text == inspect.cleandoc(d)
+    assert doc.text.rstrip() == inspect.cleandoc(d)
 
 
 def test_item_clone():

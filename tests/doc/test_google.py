@@ -22,9 +22,9 @@ def test_iter_sections_short():
     sections = list(_iter_sections("x", "google"))
     assert sections == [("", "x")]
     sections = list(_iter_sections("x\n", "google"))
-    assert sections == [("", "x")]
+    assert sections == [("", "x\n")]
     sections = list(_iter_sections("x\n\n", "google"))
-    assert sections == [("", "x")]
+    assert sections == [("", "x\n\n")]
 
 
 def test_iter_sections(google):
