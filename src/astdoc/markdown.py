@@ -264,6 +264,9 @@ def _iter_example_lists(text: str) -> Iterator[list[doctest.Example] | str]:
         yield examples
 
 
+EXAMPLE_CLASS = {"input": "astdoc-example-input", "output": "astdoc-example-output"}
+
+
 def _convert_examples(examples: list[doctest.Example]) -> str:
     """Convert a list of doctest examples into Markdown format.
 
@@ -280,14 +283,14 @@ def _convert_examples(examples: list[doctest.Example]) -> str:
 
     """
     prefix = " " * examples[0].indent
-    lines = [f"{prefix}```{{.python .astdoc-example-input}}"]
+    lines = [f"{prefix}```{{.python .{EXAMPLE_CLASS['input']}}}"]
 
     lines.extend(textwrap.indent(e.source.rstrip(), prefix) for e in examples)
     lines.append(f"{prefix}```\n")
 
     if want := examples[-1].want:
         want = textwrap.indent(want.rstrip(), prefix)
-        output = f"{prefix}```{{.text .astdoc-example-output}}\n"
+        output = f"{prefix}```{{.text .{EXAMPLE_CLASS['output']}}}\n"
         output = f"{output}{want}\n{prefix}```\n"
         lines.append(output)
 
