@@ -19,9 +19,9 @@ def test_iter_sections_short():
     sections = list(_iter_sections("x", "numpy"))
     assert sections == [("", "x")]
     sections = list(_iter_sections("x\n", "numpy"))
-    assert sections == [("", "x")]
+    assert sections == [("", "x\n")]
     sections = list(_iter_sections("x\n\n", "numpy"))
-    assert sections == [("", "x")]
+    assert sections == [("", "x\n\n")]
 
 
 def test_iter_sections(numpy):

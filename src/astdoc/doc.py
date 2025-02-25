@@ -323,23 +323,28 @@ def _split_sections(text: str, style: Style) -> Iterator[str]:
     pattern = SPLIT_SECTION_PATTERNS[style]
 
     if not (m := re.search("\n\n", text)):
-        yield text.strip()
+        yield text
         return
 
     start = m.end()
-    yield text[:start].strip()
+    yield text[:start]
 
     for m in astdoc.markdown.finditer(pattern, text, start):
-        yield from _subsplit(text[start : m.start()].strip(), style)
+        yield from _subsplit(text[start : m.start()], style)
         start = m.start()
 
-    yield from _subsplit(text[start:].strip(), style)
+    yield from _subsplit(text[start:], style)
 
 
 # In Numpy style, if a section is indented, then a section break is
 # created by resuming unindented text.
 def _subsplit(text: str, style: Style) -> list[str]:
-    if style == "google" or len(lines := text.splitlines()) < 3:
+    if style == "google":
+        return [text]
+
+    lines = text.strip().splitlines()
+
+    if len(lines) < 3:
         return [text]
 
     if not lines[2].startswith(" "):  # 2 == after '----' line.
@@ -510,14 +515,14 @@ def _iter_sections(text: str, style: Style) -> Iterator[tuple[str, str]]:
     """
     prev_name, prev_text = "", ""
     for section in _split_sections(text, style):
-        if not section:
+        if not section.strip():
             continue
 
-        name, text = split_section(section, style)
+        name, text = split_section(section.strip(), style)
         name = _rename_section(name)
 
         if prev_name == name == "":  # successive 'plain' section.
-            prev_text = f"{prev_text}\n\n{text}" if prev_text else text
+            prev_text = f"{prev_text}{section}" if prev_text else section
             continue
 
         elif prev_name == "" and name != "" and prev_text:
@@ -671,6 +676,31 @@ def iter_sections(text: str, style: Style) -> Iterator[Section]:
         yield Section("", "", prev_text, [])
 
 
+INDENTED_CODE_BLOCK = re.compile(r"^    ```{\..*?^    ```$", re.MULTILINE | re.DOTALL)
+
+
+def normalize_code_block_indentation(text: str) -> str:
+    """Normalize indentation of code blocks in the given text.
+
+    Args:
+        text: Text containing possibly indented code blocks.
+
+    Returns:
+        Text with normalized code block indentation.
+
+    """
+    return INDENTED_CODE_BLOCK.sub(
+        lambda m: textwrap.dedent(m.group()),
+        text,
+    )
+
+
+def clean_section(section: Section) -> Section:
+    """Clean up a section by normalizing its code blocks."""
+    section.text = normalize_code_block_indentation(section.text)
+    return section
+
+
 @dataclass
 class Doc(Item):
     """Represent a docstring.
@@ -740,7 +770,8 @@ def create_doc(text: str | None, style: Style | None = None) -> Doc:
 
     style = style or get_style(text)
     text = astdoc.markdown.convert_code_block(text)
-    sections = list(iter_sections(text, style))
+    it = iter_sections(text, style)
+    sections = [clean_section(s) for s in it]
 
     if sections and not sections[0].name:
         type_ = sections[0].type

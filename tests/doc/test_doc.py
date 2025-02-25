@@ -1,6 +1,20 @@
 import inspect
 
 
+def test_normalize_code_block_indentation():
+    from astdoc.doc import iter_sections, normalize_code_block_indentation
+    from astdoc.markdown import convert_code_block
+
+    text = "a\n\n    >>> b\n\nc\n\n    >>> d\n    1\n\ne"
+    s = next(iter_sections(convert_code_block(text), "google"))
+    t = normalize_code_block_indentation(s.text)
+    assert "a\n\n```{.python" in t
+    assert "input}\nb\n```\n\nc" in t
+    assert "\nc\n\n```{.python" in t
+    assert "input}\nd\n```\n\n```{.text" in t
+    assert "output}\n1\n```\n\ne" in t
+
+
 def test_create_doc():
     from astdoc.doc import create_doc
 
@@ -12,6 +26,28 @@ def test_create_doc():
     assert not doc.type
     assert not doc.text
     assert doc.sections
+
+
+def test_create_doc_doctest():
+    from astdoc.doc import create_doc
+
+    text = "a\n\n    >>> b\n\nc\n\n    >>> d\n    1\n\ne"
+    t = create_doc(text).text
+    assert "a\n\n```{.python" in t
+    assert "input}\nb\n```\n\nc" in t
+    assert "\nc\n\n```{.python" in t
+    assert "input}\nd\n```\n\n```{.text" in t
+    assert "output}\n1\n```\n\ne" in t
+
+
+def test_create_doc_doctest_section():
+    from astdoc.doc import create_doc
+
+    text = "a\n\nExamples:\n    >>> b\n"
+    doc = create_doc(text)
+    t = doc.sections[0].text
+    assert t.startswith("```{.python")
+    assert t.endswith("input}\nb\n```")
 
 
 def test_merge_sections():
@@ -137,7 +173,7 @@ def test_create_doc_code_block():
         pass
     ```
     """
-    assert doc.text == inspect.cleandoc(d)
+    assert doc.text.rstrip() == inspect.cleandoc(d)
 
 
 def test_item_clone():

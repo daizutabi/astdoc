@@ -308,6 +308,23 @@ def test_convert_example_new_line():
     assert convert_code_block(src1) == convert_code_block(src2)
 
 
+def test_convert_code_block_doctest():
+    from astdoc.markdown import convert_code_block
+
+    text = "a\n\n    >>> b\n\nc"
+    result = convert_code_block(text)
+    assert "a\n\n    ```{.python" in result
+    assert "\n    b\n    ```\n" in result
+
+
+def test_convert_code_block_doctest_without_blank_line():
+    from astdoc.markdown import convert_code_block
+
+    text = "a\n\n    >>> b\nc"
+    expected = "a\n\n```\n>>> b\n```\nc\n"
+    assert convert_code_block(text) == expected
+
+
 def test_finditer():
     from astdoc.markdown import _finditer, convert_code_block
 
