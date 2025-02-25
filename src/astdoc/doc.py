@@ -676,6 +676,31 @@ def iter_sections(text: str, style: Style) -> Iterator[Section]:
         yield Section("", "", prev_text, [])
 
 
+INDENTED_CODE_BLOCK = re.compile(r"^    ```{\..*?^    ```$", re.MULTILINE | re.DOTALL)
+
+
+def normalize_code_block_indentation(text: str) -> str:
+    """Normalize indentation of code blocks in the given text.
+
+    Args:
+        text: Text containing possibly indented code blocks.
+
+    Returns:
+        Text with normalized code block indentation.
+
+    """
+    return INDENTED_CODE_BLOCK.sub(
+        lambda m: textwrap.dedent(m.group()),
+        text,
+    )
+
+
+def clean_section(section: Section) -> Section:
+    """Clean up a section by normalizing its code blocks."""
+    section.text = normalize_code_block_indentation(section.text)
+    return section
+
+
 @dataclass
 class Doc(Item):
     """Represent a docstring.
@@ -745,7 +770,8 @@ def create_doc(text: str | None, style: Style | None = None) -> Doc:
 
     style = style or get_style(text)
     text = astdoc.markdown.convert_code_block(text)
-    sections = list(iter_sections(text, style))
+    it = iter_sections(text, style)
+    sections = [clean_section(s) for s in it]
 
     if sections and not sections[0].name:
         type_ = sections[0].type
