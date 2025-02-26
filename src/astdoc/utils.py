@@ -424,9 +424,6 @@ def iter_attribute_names(name: str, *, reverse: bool = False) -> Iterator[str]:
         yield ".".join(names[:k])
 
 
-T = TypeVar("T")
-
-
 def _is_equal(item: object, name: str, attr: str = "name") -> bool:
     return getattr(item, attr) == name
 
