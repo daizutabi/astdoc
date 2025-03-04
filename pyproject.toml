@@ -76,4 +76,4 @@ ignore = [
 "tests/*" = ["ANN", "ARG", "D", "FBT", "PLR", "RUF", "S"]
 
 [tool.pyright]
-include = ["src"]
+include = ["src", "tests"]
