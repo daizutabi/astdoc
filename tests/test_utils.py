@@ -320,6 +320,22 @@ def test_split_module_name_none():
     assert not split_module_name("x.x")
 
 
+@pytest.mark.parametrize(
+    ("name", "expected"),
+    [
+        ("namespace", None),
+        ("namespace.sub", ("namespace.sub", None)),
+        ("namespace.sub.func", ("func", "namespace.sub")),
+        ("namespace.unknown", ("unknown", "namespace")),
+        ("namespace.sub.unknown", ("unknown", "namespace.sub")),
+    ],
+)
+def test_split_module_name_namespace(name, expected):
+    from astdoc.utils import split_module_name
+
+    assert split_module_name(name) == expected
+
+
 @pytest.fixture(autouse=True)
 def clear_cache():
     from astdoc.utils import cache_clear
