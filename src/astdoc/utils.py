@@ -976,10 +976,10 @@ def split_module_name(name: str) -> tuple[str, str | None] | None:
     modulename = None
     for module in iter_attribute_names(name):
         if not get_module_node(module):
-            if not modulename:
+            if modulename:
+                return name[len(modulename) + 1 :], modulename
+            if not is_package(module) or module == name:
                 return None
-
-            return name[len(modulename) + 1 :], modulename
 
         modulename = module
 
