@@ -34,14 +34,17 @@ def test_cache():
     assert not c
 
 
-@pytest.mark.parametrize("name", ["collections", "markdown"])
+@pytest.mark.parametrize(
+    "name",
+    ["collections", "markdown", "examples", "namespace.sub"],
+)
 def test_get_module_path(name):
     from astdoc.utils import get_module_path
 
     assert get_module_path(name)
 
 
-@pytest.mark.parametrize("name", ["sys", "a.b"])
+@pytest.mark.parametrize("name", ["sys", "a.b", "namespace"])
 def test_get_module_path_none(name):
     from astdoc.utils import get_module_path
 
@@ -67,7 +70,14 @@ def test_is_module():
 
 @pytest.mark.parametrize(
     ("name", "b"),
-    [("astdoc", True), ("astdoc.object", False), ("sys", False), ("a.b", False)],
+    [
+        ("astdoc", True),
+        ("astdoc.object", False),
+        ("sys", False),
+        ("a.b", False),
+        ("examples", True),
+        ("namespace", True),
+    ],
 )
 def test_is_package(name, b):
     from astdoc.utils import is_package
@@ -82,6 +92,13 @@ def test_iter_submodule_names(name):
     names = list(iter_submodule_names(name))
     assert names
     assert all(n.startswith(name) for n in names)
+
+
+def test_iter_submodule_names_namespace():
+    from astdoc.utils import iter_submodule_names
+
+    names = list(iter_submodule_names("namespace"))
+    assert names == ["namespace.sub"]
 
 
 def test_iter_submodule_names_none():

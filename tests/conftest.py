@@ -7,3 +7,4 @@ if path not in sys.path:
     sys.path.insert(0, str(path))
 
 assert importlib.import_module("examples")
+assert importlib.import_module("namespace")
