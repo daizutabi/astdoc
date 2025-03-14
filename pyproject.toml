@@ -23,20 +23,16 @@ requires-python = ">=3.10"
 dependencies = ["markdown>=3"]
 
 [project.urls]
-Documentation = "https://github.com/daizutabi/astdoc"
+Documentation = "https://daizutabi.github.io/astdoc/"
 Source = "https://github.com/daizutabi/astdoc"
 Issues = "https://github.com/daizutabi/astdoc/issues"
 
 [dependency-groups]
-dev = [
-  "jinja2",
-  "pytest-clarity",
-  "pytest-cov",
-  "pytest-randomly",
-  "pytest-xdist",
-]
+dev = ["jinja2", "pytest-clarity", "pytest-cov", "pytest-randomly"]
+docs = ["mkapi", "mkdocs-material"]
 
 [tool.pytest.ini_options]
+testpaths = ["src", "tests"]
 addopts = ["--doctest-modules", "--cov=astdoc", "--cov-report=lcov:lcov.info"]
 
 [tool.coverage.report]
