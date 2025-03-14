@@ -228,7 +228,7 @@ def is_package(name: str) -> bool:
     if spec and spec.origin:
         return Path(spec.origin).stem == "__init__"
 
-    return False
+    return bool(spec and spec.submodule_search_locations)
 
 
 def iter_submodule_names(name: str) -> Iterator[str]:
