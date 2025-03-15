@@ -86,7 +86,7 @@ def _split_google_style_item(lines: list[str]) -> tuple[str, str, str]:
     rest = "\n".join(lines[1:])
     rest = textwrap.dedent(rest)
 
-    return name, type_, f"{text}\n{rest}".rstrip()
+    return name, type_, f"{text}\n{rest}".strip()
 
 
 def _split_numpy_style_item(lines: list[str]) -> tuple[str, str, str]:
@@ -102,7 +102,7 @@ def _split_numpy_style_item(lines: list[str]) -> tuple[str, str, str]:
     text = "\n".join(lines[1:])
     text = textwrap.dedent(text)
 
-    return name, type_, text
+    return name, type_, text.strip()
 
 
 def split_item(text: str, style: Style) -> tuple[str, str, str]:
