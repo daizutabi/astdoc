@@ -212,3 +212,12 @@ def test_doc_clone():
     assert doc.sections[0].items[0].name == "item"
     assert doc.sections[0].items[0].type == "int"
     assert doc.sections[0].items[0].text == "item-text"
+
+
+def test_item_new_line():
+    from astdoc.doc import create_doc
+
+    text = "Args:\n    a (int):\n        A\n        B\n"
+    doc = create_doc(text)
+    section = doc.sections[0]
+    assert section.items[0].text == "A\nB"
