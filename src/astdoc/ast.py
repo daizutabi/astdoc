@@ -111,6 +111,8 @@ def _get_pseudo_docstring(node: AST) -> str | None:
 def _iter_assign_nodes(
     node: AnnAssign | Assign | TypeAlias,  # type: ignore
     it: Iterator[AST],
+    depth: int = 0,
+    max_depth: int = 900,
 ) -> Iterator[AST]:
     """Yield assignment nodes from the given AST node.
 
@@ -124,11 +126,17 @@ def _iter_assign_nodes(
         node (AnnAssign | Assign | TypeAlias): The initial assignment node
             to process.
         it (Iterator[AST]): An iterator over the child nodes of the AST.
+        depth (int): The current depth of the node in the AST.
+        max_depth (int): The maximum depth to traverse.
 
     Yields:
         AST: The assignment nodes found in the AST.
 
     """
+    if depth >= max_depth:
+        yield node
+        return
+
     node.__doc__ = None
 
     try:
@@ -139,7 +147,7 @@ def _iter_assign_nodes(
 
     if isinstance(next_node, AnnAssign | Assign | TypeAlias):
         yield node
-        yield from _iter_assign_nodes(next_node, it)
+        yield from _iter_assign_nodes(next_node, it, depth + 1, max_depth)
 
     elif isinstance(next_node, FunctionDef | AsyncFunctionDef | ClassDef):
         yield node
