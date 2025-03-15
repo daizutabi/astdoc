@@ -325,7 +325,7 @@ def test_has_decorator_invalid():
     assert not has_decorator(node, "my_decorator", 0)
 
 
-def test_iter_assing_nodes_enum():
+def test_iter_child_nodes_enum():
     from astdoc.ast import iter_child_nodes
 
     n = 2000
