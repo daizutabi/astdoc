@@ -323,3 +323,21 @@ def test_has_decorator_invalid():
     src = "x=1"
     node = ast.parse(src).body[0]
     assert not has_decorator(node, "my_decorator", 0)
+
+
+def test_iter_assing_nodes_enum():
+    from astdoc.ast import iter_child_nodes
+
+    n = 2000
+    src = "from enum import Enum, auto\nclass MyEnum(Enum):\n"
+    vs = "".join(f"  VALUE_{i} = auto()\n" for i in range(n))
+    src = f'{src}\n{vs}\n  """doc"""\n'
+    node = ast.parse(src).body[1]
+    nodes = list(iter_child_nodes(node))
+    assert len(nodes) == n
+    node = nodes[-1]
+    assert isinstance(node, ast.Assign)
+    target = node.targets[0]
+    assert isinstance(target, ast.Name)
+    assert target.id == "VALUE_1999"
+    assert node.__doc__ == "doc"
