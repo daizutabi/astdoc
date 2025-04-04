@@ -50,7 +50,7 @@ Issues = "https://github.com/daizutabi/astdoc/issues"
 Changelog = "https://github.com/daizutabi/astdoc/blob/main/CHANGELOG.md"
 
 [dependency-groups]
-dev = ["jinja2", "pytest-clarity", "pytest-cov", "pytest-randomly"]
+dev = ["jinja2", "pytest-clarity", "pytest-cov", "pytest-randomly", "ruff"]
 docs = ["mkapi", "mkdocs-material"]
 
 [tool.pytest.ini_options]
