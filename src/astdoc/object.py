@@ -480,6 +480,12 @@ def create_class(node: ast.ClassDef, module: str, parent: Parent | None) -> Clas
 
     init = cls.children.get("__init__")
 
+    children: dict[str, Object] = {}
+    for base in get_base_classes(node.name, module):
+        children |= base.children
+        if init is None:
+            init = base.children.get("__init__")
+
     if isinstance(init, Function):
         for attr in iter_attributes_from_function(init, cls):
             cls.children.setdefault(attr.name, attr)
@@ -489,9 +495,6 @@ def create_class(node: ast.ClassDef, module: str, parent: Parent | None) -> Clas
 
         cls.doc = merge(cls.doc, init.doc)
 
-    children: dict[str, Object] = {}
-    for base in get_base_classes(node.name, module):
-        children |= base.children
     cls.children = children | cls.children
 
     if is_dataclass(node.name, module):
