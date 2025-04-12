@@ -793,9 +793,24 @@ def is_property(node: AST) -> TypeGuard[FunctionDef | AsyncFunctionDef]:
         >>> node = ast.parse(src).body[0]
         >>> is_property(node)
         True
+        >>> src = "@cached_property\ndef func(self): pass"
+        >>> node = ast.parse(src).body[0]
+        >>> is_property(node)
+        True
+        >>> src = "@functools.cached_property\ndef func(self): pass"
+        >>> node = ast.parse(src).body[0]
+        >>> is_property(node)
+        True
 
     """
-    return is_function_def(node) and has_decorator(node, "property")
+    if is_function_def(node):
+        for deco in node.decorator_list:
+            deco_name = next(iter_identifiers(deco))
+            for name in ["property", "cached_property", "functools.cached_property"]:
+                if deco_name == name:
+                    return True
+
+    return False
 
 
 def is_setter(node: AST) -> TypeGuard[FunctionDef | AsyncFunctionDef]:
