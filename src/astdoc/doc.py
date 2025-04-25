@@ -7,6 +7,7 @@ of structured information from docstrings, including parameters, return values,
 and sections.
 
 Key Classes:
+
 - Item: Represents an individual item in a docstring, such as a
   parameter or return value, encapsulating its name, type, and description.
 - Section: Represents a section in a docstring, containing a name,
