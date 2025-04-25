@@ -6,6 +6,7 @@ transformation, and formatting of Markdown elements, making it easier to generat
 well-structured documentation.
 
 Key functionalities include:
+
 - Iterate over matches of regex patterns in text.
 - Handle fenced and inline code blocks.
 - Escape and unescape specific patterns for processing.
