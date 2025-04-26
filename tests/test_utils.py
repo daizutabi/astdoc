@@ -36,7 +36,7 @@ def test_cache():
 
 @pytest.mark.parametrize(
     "name",
-    ["collections", "markdown", "examples", "namespace.sub"],
+    ["collections", "examples", "namespace.sub"],
 )
 def test_get_module_path(name):
     from astdoc.utils import get_module_path
@@ -85,7 +85,7 @@ def test_is_package(name, b):
     assert is_package(name) is b
 
 
-@pytest.mark.parametrize("name", ["astdoc", "markdown"])
+@pytest.mark.parametrize("name", ["astdoc"])
 def test_iter_submodule_names(name):
     from astdoc.utils import iter_submodule_names
 
@@ -113,14 +113,6 @@ def test_find_submodule_names():
     names = find_submodule_names("astdoc", lambda x: "node" not in x)
     assert "astdoc.node" not in names
     assert "astdoc.ast" in names
-
-
-def test_find_submodule_names_package():
-    from astdoc.utils import find_submodule_names, is_package
-
-    names = find_submodule_names("markdown", is_package)
-    assert "markdown.extensions" in names
-    assert "markdown.core" not in names
 
 
 def test_get_module_node():

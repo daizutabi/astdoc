@@ -41,7 +41,7 @@ classifiers = [
   "Framework :: Sphinx",
 ]
 requires-python = ">=3.10"
-dependencies = ["markdown>=3"]
+dependencies = []
 
 [project.urls]
 Documentation = "https://daizutabi.github.io/astdoc/"
