@@ -15,6 +15,7 @@ Key Features:
 from __future__ import annotations
 
 import ast
+import copy
 import re
 from ast import (
     AnnAssign,
@@ -532,9 +533,9 @@ class Transformer(NodeTransformer):
             '__astdoc__.a.b.c'
 
         """
-        # copy node for avoiding in-place rename.
-        node_ = ast.parse(ast.unparse(node))
-        return ast.unparse(self.visit(node_))
+        node = copy.deepcopy(node)
+        node = self.visit(node)
+        return ast.unparse(node)
 
 
 class StringTransformer(Transformer):
