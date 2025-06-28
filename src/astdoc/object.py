@@ -743,7 +743,7 @@ def _create_doc_comment(node: AST, lines: list[str]) -> Doc | None:
     return None
 
 
-def get_object_kind(obj: Object) -> str:  # noqa: PLR0911
+def get_object_kind(obj: Object) -> str:
     """Return the kind of the given object.
 
     Determine the kind of the provided object and return a string representation
@@ -871,7 +871,7 @@ def get_object(name: str, module: str | None = None) -> Object | None:
     return objects.get(fullname)
 
 
-def get_fullname_from_object(name: str, obj: Object) -> str | None:  # noqa: PLR0911
+def get_fullname_from_object(name: str, obj: Object) -> str | None:
     """Return the fully qualified name for `name` relative to the given `Object`.
 
     Construct the fully qualified name for `name` based

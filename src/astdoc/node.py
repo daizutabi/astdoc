@@ -710,7 +710,7 @@ def iter_methods_from_class(
 
 
 @cache
-def resolve(  # noqa: C901, PLR0911, PLR0912
+def resolve(
     name: str,
     module: str | None = None,
 ) -> tuple[str | None, str | None] | None:
