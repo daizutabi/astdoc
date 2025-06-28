@@ -674,13 +674,16 @@ def iter_sections(text: str, style: Style) -> Iterator[Section]:
 
             if style == "numpy":
                 # Check for multiple named items (like "s : int", "p : int")
-                named_items = [
-                    line
-                    for line in lines
-                    if ":" in line and not line.strip().startswith(" ")
-                ]
+                # or items without type (like "s", "p")
+                named_items = []
+                for line in lines:
+                    stripped = line.strip()
+                    if stripped and not line.startswith(" "):
+                        named_items.append(line)
                 has_multiple_named_items = len(named_items) > 1
+
             elif style == "google":
+                # NOT IMPLEMENTED YET
                 # Check for multiple items by indentation
                 # Multiple returns are indented, single return is not indented
                 # Look for patterns where we have indented lines with ":"
