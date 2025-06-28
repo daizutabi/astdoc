@@ -667,7 +667,35 @@ def iter_sections(text: str, style: Style) -> Iterator[Section]:
             yield Section(name, "", "", items)
 
         elif name in ["Returns", "Yields"]:
-            items = list(iter_items_without_name(text_, style))
+            # For Returns/Yields sections, check if there are multiple items
+            # Only use iter_items if we detect multiple named items
+            lines = text_.splitlines()
+            has_multiple_named_items = False
+
+            if style == "numpy":
+                # Check for multiple named items (like "s : int", "p : int")
+                named_items = [
+                    line
+                    for line in lines
+                    if ":" in line and not line.strip().startswith(" ")
+                ]
+                has_multiple_named_items = len(named_items) > 1
+            elif style == "google":
+                # Check for multiple items by indentation
+                # Multiple returns are indented, single return is not indented
+                # Look for patterns where we have indented lines with ":"
+                indented_colon_lines = []
+                for i, line in enumerate(lines):
+                    stripped = line.strip()
+                    if ":" in stripped and line.startswith(" "):
+                        indented_colon_lines.append(i)
+                has_multiple_named_items = len(indented_colon_lines) > 0
+
+            if has_multiple_named_items:
+                items = list(iter_items(text_, style))
+            else:
+                # Otherwise, use iter_items_without_name for single unnamed items
+                items = list(iter_items_without_name(text_, style))
             yield Section(name, "", "", items)
 
         else:
@@ -948,7 +976,7 @@ def merge_sections(a: Section, b: Section) -> Section:
     return Section(a.name, type_, text, list(items))
 
 
-def iter_merged_sections(a: list[Section], b: list[Section]) -> Iterator[Section]:  # noqa: C901
+def iter_merged_sections(a: list[Section], b: list[Section]) -> Iterator[Section]:
     """Yield merged `Section` instances from two lists of `Section`.
 
     Take two lists of `Section` instances and yield merged
