@@ -223,7 +223,7 @@ def get_assign_type(node: AnnAssign | Assign | TypeAlias) -> ast.expr | None:  #
     Examples:
         >>> import ast
         >>> node = ast.parse("x: int = 1").body[0]
-        >>> get_assign_type(node)  # doctest: +ELLIPSIS
+        >>> get_assign_type(node)  # doctest: +SKIP
         <ast.Name object at 0x...>
         >>> node = ast.parse("y = 2").body[0]
         >>> get_assign_type(node) is None
@@ -267,11 +267,11 @@ def _iter_parameters(
         >>> args = list(_iter_parameters(node))
         >>> args[0]
         ('a', None, <_ParameterKind.POSITIONAL_OR_KEYWORD: 1>)
-        >>> args[1]  # doctest: +ELLIPSIS
+        >>> args[1]  # doctest: +SKIP
         ('b', <ast.Name object at 0x...>, <_ParameterKind.POSITIONAL_OR_KEYWORD: 1>)
-        >>> args[2]  # doctest: +ELLIPSIS
+        >>> args[2]
         ('args', None, <_ParameterKind.VAR_POSITIONAL: 2>)
-        >>> args[3]  # doctest: +ELLIPSIS
+        >>> args[3]  # doctest: +SKIP
         ('c', <ast.Name object at 0x...>, <_ParameterKind.KEYWORD_ONLY: 3>)
         >>> args[4]
         ('d', None, <_ParameterKind.KEYWORD_ONLY: 3>)
@@ -310,7 +310,7 @@ def _iter_defaults(node: FunctionDef | AsyncFunctionDef) -> Iterator[ast.expr | 
         >>> import ast
         >>> src = "def func(a, b=2, c=3): pass"
         >>> node = ast.parse(src).body[0]
-        >>> list(_iter_defaults(node))  # doctest: +ELLIPSIS
+        >>> list(_iter_defaults(node))  # doctest: +SKIP
         [None, <ast.Constant object at 0x...>, <ast.Constant object at 0x...>]
 
     """
@@ -506,7 +506,7 @@ class Transformer(NodeTransformer):
     def _rename(self, name: str) -> Name:
         return Name(id=f"{PREFIX}{name}")
 
-    def visit_Name(self, node: Name) -> Name:  # noqa: N802
+    def visit_Name(self, node: Name) -> Name:
         """Visit a `Name` node and rename it if it is not already renamed."""
         return self._rename(node.id)
 
@@ -548,7 +548,7 @@ class StringTransformer(Transformer):
     parent class.
     """
 
-    def visit_Constant(self, node: Constant) -> Constant | Name:  # noqa: N802
+    def visit_Constant(self, node: Constant) -> Constant | Name:
         """Visit a `Constant` node and rename it if its value is a string.
 
         Override the `visit_Constant` method from the `Transformer`

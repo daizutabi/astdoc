@@ -22,13 +22,13 @@ def test_cache():
     time.sleep(0.1)
     y = f()
     assert x == y
-    assert f.cache_info().currsize == 1
+    assert f.cache_info().currsize == 1  # pyright: ignore[reportFunctionMemberAccess]
     cache_clear()
-    assert f.cache_info().currsize == 0
+    assert f.cache_info().currsize == 0  # pyright: ignore[reportFunctionMemberAccess]
     time.sleep(0.1)
     z = f()
     assert x != z
-    assert f.cache_info().currsize == 1
+    assert f.cache_info().currsize == 1  # pyright: ignore[reportFunctionMemberAccess]
     c[1] = 1
     cache_clear()
     assert not c

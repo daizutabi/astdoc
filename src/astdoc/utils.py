@@ -92,7 +92,7 @@ def cache_clear() -> None:
     """
     for obj in cached_objects:
         if callable(obj):
-            obj.cache_clear()
+            obj.cache_clear()  # pyright: ignore[reportFunctionMemberAccess]
         else:
             obj.clear()
 
