@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
 
 def _iter(
-    pattern: re.Pattern,
+    pattern: re.Pattern[str],
     text: str,
     pos: int = 0,
     endpos: int | None = None,
@@ -396,7 +396,7 @@ def _split_block(text: str, indent: int) -> tuple[str, str]:
         the non-indented segments.
 
     """
-    subs = {True: [], False: []}
+    subs: dict[bool, list[str]] = {True: [], False: []}
 
     for sub, is_block in _iter_blocks(text, indent):
         subs[is_block].append(sub)
@@ -422,8 +422,8 @@ def _iter_blocks(text: str, indent: int) -> Iterator[tuple[str, bool]]:
         indicating whether the block is indented (True) or not (False).
 
     """
-    lines = text.splitlines()
-    rests = []
+    lines: list[str] = text.splitlines()
+    rests: list[str] = []
 
     for k, line in enumerate(lines):
         if not line:
@@ -538,7 +538,7 @@ def convert_code_block(text: str) -> str:
 
 
 def _finditer(
-    pattern: re.Pattern,
+    pattern: re.Pattern[str],
     text: str,
     pos: int = 0,
     endpos: int | None = None,
@@ -552,7 +552,7 @@ def _finditer(
 
 
 def finditer(
-    pattern: re.Pattern,
+    pattern: re.Pattern[str],
     text: str,
     pos: int = 0,
     endpos: int | None = None,
@@ -578,8 +578,8 @@ def finditer(
 
 
 def sub(
-    pattern: re.Pattern,
-    rel: Callable[[re.Match], str],
+    pattern: re.Pattern[str],
+    rel: Callable[[re.Match[str]], str],
     text: str,
     pos: int = 0,
     endpos: int | None = None,

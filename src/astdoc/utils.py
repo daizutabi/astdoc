@@ -21,11 +21,17 @@ from typing import TYPE_CHECKING, TypeVar, overload
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator
-
+    from typing import Any
 
 cached_objects = []
 
 T = TypeVar("T")
+
+# pyright: reportMissingTypeArgument=false
+# pyright: reportUnknownArgumentType=false
+# pyright: reportUnknownMemberType=false
+# pyright: reportUnknownParameterType=false
+# pyright: reportUnknownVariableType=false
 
 
 @overload
@@ -512,7 +518,7 @@ def find_item_by_kind(items: Iterable[T], kind: str) -> T | None:
     return None
 
 
-def find_item_by_type(items: Iterable, type_: type[T]) -> T | None:
+def find_item_by_type(items: Iterable[Any], type_: type[T]) -> T | None:
     """Find the first item of a specified type from an iterable of items.
 
     Search through a collection of items and return the
@@ -559,7 +565,11 @@ def delete_item_by_name(items: list[T], name: str, attr: str = "name") -> None:
             return
 
 
-def merge_unique_names(a: Iterable, b: Iterable, attr: str = "name") -> list[str]:
+def merge_unique_names(
+    a: Iterable[Any],
+    b: Iterable[Any],
+    attr: str = "name",
+) -> list[str]:
     """Merge two iterables and return a list of unique names.
 
     Take two iterables and collect the names of their
@@ -923,7 +933,7 @@ def get_base_classes(name: str, module: str) -> list[tuple[str, str]]:
     """
     obj = get_object_from_module(name, module)
 
-    bases = []
+    bases: list[tuple[str, str]] = []
 
     if inspect.isclass(obj):
         for base in obj.__bases__:

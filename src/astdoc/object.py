@@ -7,6 +7,10 @@ properties, allowing for detailed analysis and processing of Python code
 structures.
 """
 
+# pyright: reportAttributeAccessIssue=false
+# pyright: reportUnknownMemberType=false
+# pyright: reportUnknownVariableType=false
+
 from __future__ import annotations
 
 import ast
@@ -15,11 +19,10 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, TypeVar
 
 import astdoc.ast
-import astdoc.node
 import astdoc.utils
 from astdoc.ast import (
     Parameter,
-    TypeAlias,
+    TypeAlias,  # pyright: ignore[reportPrivateLocalImportUsage]
     get_assign_name,
     get_assign_type,
     is_assign,
@@ -116,7 +119,7 @@ class Object:
 
         node = self.node
         types = ast.Module | ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef
-        text = ast.get_docstring(node) if isinstance(node, types) else node.__doc__  # type: ignore
+        text = ast.get_docstring(node) if isinstance(node, types) else node.__doc__  # pyright: ignore[reportArgumentType]
         self.doc = create_doc(text)
 
     def __repr__(self) -> str:
@@ -167,7 +170,7 @@ def iter_child_objects(
             yield create_property(child, module, parent)
 
         elif is_assign(child) and (name := get_assign_name(child)):
-            yield create_attribute(name, child, module, parent)
+            yield create_attribute(name, child, module, parent)  # pyright: ignore[reportUnknownArgumentType]
 
 
 @dataclass(repr=False)
@@ -488,9 +491,9 @@ def create_class(node: ast.ClassDef, module: str, parent: Parent | None) -> Clas
 
     if isinstance(init, Function):
         for attr in iter_attributes_from_function(init, cls):
-            cls.children.setdefault(attr.name, attr)
+            _ = cls.children.setdefault(attr.name, attr)
 
-        objs = sorted(cls.children.values(), key=lambda x: x.node.lineno)  # type: ignore
+        objs = sorted(cls.children.values(), key=lambda x: x.node.lineno)  # pyright: ignore[reportUnknownLambdaType]
         cls.children = {obj.name: obj for obj in objs}
 
         cls.doc = merge(cls.doc, init.doc)
@@ -553,7 +556,7 @@ def get_base_classes(name: str, module: str) -> list[Class]:
         of the specified class.
 
     """
-    bases = []
+    bases: list[Class] = []
 
     for basename, basemodule in astdoc.utils.get_base_classes(name, module):
         if cls := objects.get(f"{basemodule}.{basename}"):
@@ -730,15 +733,15 @@ def create_module(
 
 
 def _create_doc_comment(node: AST, lines: list[str]) -> Doc | None:
-    line = lines[node.lineno - 1][node.end_col_offset :].strip()  # type: ignore
+    line: str = lines[node.lineno - 1][node.end_col_offset :].strip()
 
     if line.startswith("#:"):
-        return create_doc_comment(line[2:].strip())
+        return create_doc_comment(line[2:].strip())  # pyright: ignore[reportUnknownArgumentType]
 
-    if node.lineno > 1:  # type: ignore
-        line = lines[node.lineno - 2][node.col_offset :]  # type: ignore
+    if node.lineno > 1:
+        line = lines[node.lineno - 2][node.col_offset :]
         if line.startswith("#:"):
-            return create_doc_comment(line[2:].strip())
+            return create_doc_comment(line[2:].strip())  # pyright: ignore[reportUnknownArgumentType]
 
     return None
 
@@ -867,7 +870,7 @@ def get_object(name: str, module: str | None = None) -> Object | None:
     if not module:
         return create_module(name_)
 
-    create_module(module)
+    _ = create_module(module)
     return objects.get(fullname)
 
 

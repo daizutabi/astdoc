@@ -14,9 +14,13 @@ from itertools import chain
 from typing import TYPE_CHECKING
 
 import astdoc.ast
-from astdoc.ast import TypeAlias, get_assign_name, is_assign
+from astdoc.ast import (
+    TypeAlias,  # pyright: ignore[reportPrivateLocalImportUsage]
+    get_assign_name,  # pyright: ignore[reportUnknownVariableType]
+    is_assign,  # pyright: ignore[reportUnknownVariableType]
+)
 from astdoc.utils import (
-    cache,
+    cache,  # pyright: ignore[reportUnknownVariableType]
     get_module_name,
     get_module_node,
     get_object_from_module,
@@ -171,7 +175,7 @@ def iter_child_nodes(node: AST, module: str) -> Iterator[Definition | Assign | I
 
         elif is_assign(child) and (name := get_assign_name(child)):
             module_ = get_module_name(module)  # _collections_abc -> collections.abc
-            yield Assign(name, child, module_)
+            yield Assign(name, child, module_)  # pyright: ignore[reportUnknownArgumentType]
 
 
 def _iter_imports(node: ast.Import) -> Iterator[tuple[str, str]]:
@@ -374,7 +378,7 @@ def parse_node(
         containing the name and the corresponding node instance.
 
     """
-    children = []
+    children: list[tuple[str, Module | Definition | Assign | Import]] = []
 
     for child in get_child_nodes(node, module):
         if isinstance(child, Import) and (nodes := list(iter_nodes(child.fullname))):
@@ -510,7 +514,7 @@ def iter_module_members(
         the given module.
 
     """
-    names = set()
+    names = set[str]()
     for name, obj in _iter_module_members(module, child_only):
         if not private and _is_private(name):
             continue
@@ -688,7 +692,7 @@ def iter_methods_from_class(
     if not isinstance(cls, Definition) or not isinstance(cls.node, ast.ClassDef):
         return
 
-    names = set()
+    names = set[str]()
     for child in get_child_nodes(cls.node, module):
         name = child.name
         if name in names:
@@ -752,7 +756,7 @@ def resolve(
             if isinstance(obj, Module):
                 return resolve(qualname)
 
-            if isinstance(obj, Definition | Assign):
+            if isinstance(obj, Definition | Assign):  # pyright: ignore[reportUnnecessaryIsInstance]
                 if len(names) == 1:
                     return qualname, obj.module
 
