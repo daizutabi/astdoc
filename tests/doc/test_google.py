@@ -1,4 +1,8 @@
 import ast
+from ast import AST, ClassDef, FunctionDef, Module
+from collections.abc import Callable
+
+# pyright: reportPrivateUsage=false
 
 
 def test_split_section():
@@ -6,7 +10,7 @@ def test_split_section():
 
     f = split_section
     for style in ["google", "numpy"]:
-        assert f("A", style) == ("", "A")  # type: ignore
+        assert f("A", style) == ("", "A")  # pyright: ignore[reportArgumentType]
     assert f("A:\n    a\n    b", "google") == ("A", "a\nb")
     assert f("A\n    a\n    b", "google") == ("", "A\n    a\n    b")
     assert f("A\n---\na\nb", "numpy") == ("A", "a\nb")
@@ -27,7 +31,7 @@ def test_iter_sections_short():
     assert sections == [("", "x\n\n")]
 
 
-def test_iter_sections(google):
+def test_iter_sections(google: Module):
     from astdoc.doc import _iter_sections
 
     doc = ast.get_docstring(google)
@@ -51,7 +55,7 @@ def test_iter_sections(google):
     assert sections[5][1].endswith(".html")
 
 
-def test_iter_items(google, get):
+def test_iter_items(google: Module, get: Callable[[AST, str], str | None]):
     from astdoc.doc import _iter_items, _iter_sections
 
     doc = ast.get_docstring(google)
@@ -71,7 +75,7 @@ def test_iter_items(google, get):
     assert items[3].startswith("**kwargs")
 
 
-def test_split_item(google, get):
+def test_split_item(google: Module, get: Callable[[AST, str], str | None]):
     from astdoc.doc import _iter_items, _iter_sections, split_item
 
     doc = get(google, "module_level_function")
@@ -93,7 +97,11 @@ def test_split_item(google, get):
     assert x[2].endswith("the interface.")
 
 
-def test_iter_items_class(google, get, get_node):
+def test_iter_items_class(
+    google: Module,
+    get: Callable[[AST, str], str | None],
+    get_node: Callable[[AST, str], FunctionDef | ClassDef],
+):
     from astdoc.doc import _iter_sections, iter_items
 
     doc = get(google, "ExampleClass")
@@ -116,7 +124,7 @@ def test_iter_items_class(google, get, get_node):
     assert x[1].text == "Description of `param2`. Multiple\nlines are supported."
 
 
-def test_parse(google):
+def test_parse(google: Module):
     from astdoc.doc import create_doc
 
     doc = create_doc(ast.get_docstring(google), "google")  # type: ignore
@@ -124,7 +132,11 @@ def test_parse(google):
     assert doc.sections[0].name == "Examples"
 
 
-def test_merge(google, get, get_node):
+def test_merge(
+    google: Module,
+    get: Callable[[AST, str], str | None],
+    get_node: Callable[[AST, str], FunctionDef | ClassDef],
+):
     from astdoc.doc import create_doc, merge
 
     a = create_doc(get(google, "ExampleClass"))
@@ -136,7 +148,7 @@ def test_merge(google, get, get_node):
     assert len(doc.sections) == 2
 
 
-def test_repr(google):
+def test_repr(google: Module):
     from astdoc.doc import create_doc
 
     doc = create_doc(ast.get_docstring(google), "google")

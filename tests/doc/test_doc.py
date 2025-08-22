@@ -114,7 +114,7 @@ def test_iter_sections_invalid():
 
 
 def test_create_admonition_see_also():
-    from astdoc.doc import _create_admonition
+    from astdoc.doc import _create_admonition  # pyright: ignore[reportPrivateUsage]
 
     admonition = _create_admonition("See Also", "`astdoc`")
     assert admonition == '!!! info "See Also"\n    `astdoc`'

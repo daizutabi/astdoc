@@ -7,6 +7,12 @@ from pathlib import Path
 
 import pytest
 
+# pyright: reportFunctionMemberAccess=false
+# pyright: reportPrivateUsage=false
+# pyright: reportUnknownMemberType=false
+# pyright: reportUnknownVariableType=false
+# pyright: reportUntypedNamedTuple=false
+
 
 def test_cache():
     from astdoc.utils import cache, cache_clear, cached_objects
@@ -22,13 +28,13 @@ def test_cache():
     time.sleep(0.1)
     y = f()
     assert x == y
-    assert f.cache_info().currsize == 1  # pyright: ignore[reportFunctionMemberAccess]
+    assert f.cache_info().currsize == 1
     cache_clear()
-    assert f.cache_info().currsize == 0  # pyright: ignore[reportFunctionMemberAccess]
+    assert f.cache_info().currsize == 0
     time.sleep(0.1)
     z = f()
     assert x != z
-    assert f.cache_info().currsize == 1  # pyright: ignore[reportFunctionMemberAccess]
+    assert f.cache_info().currsize == 1
     c[1] = 1
     cache_clear()
     assert not c
@@ -38,14 +44,14 @@ def test_cache():
     "name",
     ["collections", "examples", "namespace.sub"],
 )
-def test_get_module_path(name):
+def test_get_module_path(name: str):
     from astdoc.utils import get_module_path
 
     assert get_module_path(name)
 
 
 @pytest.mark.parametrize("name", ["sys", "a.b", "namespace"])
-def test_get_module_path_none(name):
+def test_get_module_path_none(name: str):
     from astdoc.utils import get_module_path
 
     assert get_module_path(name) is None
@@ -79,14 +85,14 @@ def test_is_module():
         ("namespace", True),
     ],
 )
-def test_is_package(name, b):
+def test_is_package(name: str, *, b: bool):
     from astdoc.utils import is_package
 
     assert is_package(name) is b
 
 
 @pytest.mark.parametrize("name", ["astdoc"])
-def test_iter_submodule_names(name):
+def test_iter_submodule_names(name: str):
     from astdoc.utils import iter_submodule_names
 
     names = list(iter_submodule_names(name))
@@ -133,7 +139,7 @@ def test_get_module_node_none():
 def test_find_item_by_name():
     from astdoc.utils import find_item_by_name
 
-    A = namedtuple("A", ["name", "value"])  # noqa: PYI024
+    A = namedtuple("A", ["name", "value"])
     x = [A("a", 1), A("a", 2), A("b", 3), A("c", 4)]
     a = find_item_by_name(x, "a")
     assert a
@@ -144,7 +150,7 @@ def test_find_item_by_name():
 def test_find_item_by_name_list():
     from astdoc.utils import find_item_by_name
 
-    A = namedtuple("A", ["name", "value"])  # noqa: PYI024
+    A = namedtuple("A", ["name", "value"])
     x = [A("a", 1), A("a", 2), A("b", 3), A("c", 4)]
     a = find_item_by_name(x, ["x", "a"])
     assert a
@@ -254,7 +260,7 @@ def test_get_object():
     name = "ExampleClass"
     module = "examples._styles.google"
     obj = get_object_from_module(name, module)
-    assert obj.__name__ == name  # type: ignore
+    assert getattr(obj, "__name__", "") == name
     assert obj.__module__ == module
 
 
@@ -264,7 +270,7 @@ def test_get_object_asname():
     name_ = "ExampleClassGoogle"
     module_ = "examples._styles"
     obj = get_object_from_module(name_, module_)
-    assert obj.__name__ == "ExampleClass"  # type: ignore
+    assert getattr(obj, "__name__", "") == "ExampleClass"
     assert obj.__module__ == "examples._styles.google"
 
 
@@ -322,7 +328,7 @@ def test_split_module_name_none():
         ("namespace.sub.unknown", ("unknown", "namespace.sub")),
     ],
 )
-def test_split_module_name_namespace(name, expected):
+def test_split_module_name_namespace(name: str, expected: tuple[str, str | None]):
     from astdoc.utils import split_module_name
 
     assert split_module_name(name) == expected
@@ -339,7 +345,7 @@ def test_cache_function():
     from astdoc.utils import cache
 
     @cache
-    def sample_function(x):
+    def sample_function(x: int) -> int:
         return x * 2
 
     assert sample_function(5) == 10
@@ -350,7 +356,7 @@ def test_cache_clear():
     from astdoc.utils import cache, cache_clear
 
     @cache
-    def sample_function(x):
+    def sample_function(x: int) -> int:
         return x * 2
 
     sample_function(5)
@@ -382,7 +388,9 @@ def test_get_object_from_module():
 def test_get_module_node_source():
     from astdoc.utils import get_module_node_source
 
-    node, source = get_module_node_source("os")  # type: ignore
+    node_source = get_module_node_source("os")
+    assert node_source is not None
+    node, source = node_source
     assert isinstance(node, ast.Module)
     assert isinstance(source, str)
 

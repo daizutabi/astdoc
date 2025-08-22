@@ -675,7 +675,7 @@ def iter_sections(text: str, style: Style) -> Iterator[Section]:
             if style == "numpy":
                 # Check for multiple named items (like "s : int", "p : int")
                 # or items without type (like "s", "p")
-                named_items = []
+                named_items: list[str] = []
                 for line in lines:
                     stripped = line.strip()
                     if stripped and not line.startswith(" "):
@@ -687,7 +687,7 @@ def iter_sections(text: str, style: Style) -> Iterator[Section]:
                 # Check for multiple items by indentation
                 # Multiple returns are indented, single return is not indented
                 # Look for patterns where we have indented lines with ":"
-                indented_colon_lines = []
+                indented_colon_lines: list[int] = []
                 for i, line in enumerate(lines):
                     stripped = line.strip()
                     if ":" in stripped and line.startswith(" "):

@@ -1,4 +1,8 @@
 import ast
+from ast import AST, ClassDef, FunctionDef, Module
+from collections.abc import Callable
+
+# pyright: reportPrivateUsage=false
 
 
 def test_split_section():
@@ -24,7 +28,7 @@ def test_iter_sections_short():
     assert sections == [("", "x\n\n")]
 
 
-def test_iter_sections(numpy):
+def test_iter_sections(numpy: Module):
     from astdoc.doc import _iter_sections
 
     doc = ast.get_docstring(numpy)
@@ -50,7 +54,7 @@ def test_iter_sections(numpy):
     assert sections[6][1].endswith(".rst.txt")
 
 
-def test_iter_items(numpy, get):
+def test_iter_items(numpy: Module, get: Callable[[AST, str], str | None]):
     from astdoc.doc import _iter_items, _iter_sections
 
     doc = ast.get_docstring(numpy)
@@ -70,7 +74,7 @@ def test_iter_items(numpy, get):
     assert items[3].startswith("**kwargs")
 
 
-def test_split_item(numpy, get):
+def test_split_item(numpy: Module, get: Callable[[AST, str], str | None]):
     from astdoc.doc import _iter_items, _iter_sections, split_item
 
     doc = get(numpy, "module_level_function")
@@ -90,7 +94,11 @@ def test_split_item(numpy, get):
     assert x[2].endswith("the interface.")
 
 
-def test_iter_items_class(numpy, get, get_node):
+def test_iter_items_class(
+    numpy: Module,
+    get: Callable[[AST, str], str | None],
+    get_node: Callable[[AST, str], FunctionDef | ClassDef],
+):
     from astdoc.doc import _iter_sections, iter_items
 
     doc = get(numpy, "ExampleClass")

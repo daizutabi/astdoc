@@ -3,7 +3,7 @@ import inspect
 
 import pytest
 
-from astdoc.object import Class
+from astdoc.object import Class, Module
 
 
 def test_create_module():
@@ -70,7 +70,7 @@ def test_iter_objects():
 def test_iter_objects_none():
     from astdoc.object import iter_objects
 
-    assert not list(iter_objects(None))  # type: ignore
+    assert not list(iter_objects(None))  # pyright: ignore[reportArgumentType]
 
 
 def test_get_object_kind_package():
@@ -90,48 +90,54 @@ def astdoc_objects():
     return module
 
 
-def test_get_object_kind_module(astdoc_objects):
+def test_get_object_kind_module(astdoc_objects: Module):
     from astdoc.object import get_object_kind
 
     assert get_object_kind(astdoc_objects) == "module"
     assert astdoc_objects.kind == "module"
 
 
-def test_get_object_kind_dataclass(astdoc_objects):
+def test_get_object_kind_dataclass(astdoc_objects: Module):
     from astdoc.object import get_object_kind
 
     cls = astdoc_objects.get("Object")
+    assert cls
     assert get_object_kind(cls) == "dataclass"
     assert cls.kind == "dataclass"
 
 
-def test_get_object_kind_function(astdoc_objects):
+def test_get_object_kind_function(astdoc_objects: Module):
     from astdoc.object import get_object_kind
 
     func = astdoc_objects.get("create_function")
+    assert func
     assert get_object_kind(func) == "function"
     assert func.kind == "function"
 
 
-def test_get_object_kind_method(astdoc_objects):
+def test_get_object_kind_method(astdoc_objects: Module):
     from astdoc.object import get_object_kind
 
     cls = astdoc_objects.get("Object")
+    assert isinstance(cls, Class)
     method = cls.get("__post_init__")
+    assert method
     assert get_object_kind(method) == "method"
     assert method.kind == "method"
 
 
-def test_get_object_kind_attribute(astdoc_objects):
+def test_get_object_kind_attribute(astdoc_objects: Module):
     from astdoc.object import get_object_kind
 
     cls = astdoc_objects.get("Object")
+    assert isinstance(cls, Class)
     attribute = cls.get("node")
+    assert attribute
     assert get_object_kind(attribute) == "attribute"
     assert attribute.kind == "attribute"
 
 
-def test_get_source_module(astdoc_objects):
+def test_get_source_module(astdoc_objects: Module):
     from astdoc.object import get_source
 
     s = get_source(astdoc_objects)
@@ -139,10 +145,11 @@ def test_get_source_module(astdoc_objects):
     assert "def create_module(" in s
 
 
-def test_get_source_function(astdoc_objects):
+def test_get_source_function(astdoc_objects: Module):
     from astdoc.object import get_source
 
     func = astdoc_objects.get("create_module")
+    assert func
     s = get_source(func)
     assert s
     assert s.startswith("def create_module")
@@ -177,7 +184,7 @@ def parser():
 
 
 @pytest.mark.parametrize("name", ["replace_from_module", "replace_from_object"])
-def test_is_child(parser: Class, name):
+def test_is_child(parser: Class, name: str):
     from astdoc.object import is_child
 
     for name_, obj in parser.children.items():
@@ -219,7 +226,7 @@ def test_is_child_true_parent_module():
         ("ExampleClassGoogle", "examples._styles"),
     ],
 )
-def test_get_object_class(attr, name, module):
+def test_get_object_class(attr: str, name: str, module: str | None):
     from astdoc.object import get_object
 
     x = get_object(f"{name}{attr}", module)

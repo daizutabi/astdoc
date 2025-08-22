@@ -96,11 +96,13 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["ANN", "ARG", "D", "FBT", "PLR", "RUF", "S"]
+"tests/*" = ["ANN", "ARG", "D", "FBT", "PLR", "PYI024", "RUF", "S"]
 
-[tool.pyright]
+[tool.basedpyright]
 include = ["src", "tests"]
-strictDictionaryInference = true
-strictListInference = true
-strictSetInference = true
+exclude = ["tests/examples"]
+reportAny = false
+reportExplicitAny = false
+reportImplicitOverride = false
 reportIncompatibleVariableOverride = false
+reportUnusedCallResult = false

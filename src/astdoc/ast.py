@@ -46,7 +46,10 @@ except ImportError:
 if TYPE_CHECKING:
     from ast import AST
     from collections.abc import Callable, Iterator
-    from inspect import _ParameterKind
+    from inspect import _ParameterKind  # pyright: ignore[reportPrivateUsage]
+
+# pyright: reportInvalidTypeForm=false
+# pyright: reportUnknownParameterType=false
 
 
 def iter_child_nodes(node: AST) -> Iterator[AST]:
@@ -111,7 +114,7 @@ def _get_pseudo_docstring(node: AST) -> str | None:
 
 
 def _iter_assign_nodes(
-    node: AnnAssign | Assign | TypeAlias,  # type: ignore
+    node: AnnAssign | Assign | TypeAlias,
     it: Iterator[AST],
     depth: int = 0,
     max_depth: int = 900,
@@ -160,7 +163,7 @@ def _iter_assign_nodes(
         yield node
 
 
-def get_assign_name(node: AnnAssign | Assign | TypeAlias) -> str | None:  # type: ignore
+def get_assign_name(node: AnnAssign | Assign | TypeAlias) -> str | None:
     """Return the name of the assign node.
 
     Retrieve the name associated with an assignment node,
@@ -419,7 +422,7 @@ def iter_raises(node: FunctionDef | AsyncFunctionDef) -> Iterator[ast.expr]:
         'ValueError'
 
     """
-    names = []
+    names: list[str] = []
     for child in ast.walk(node):
         if isinstance(child, Raise) and (type_ := child.exc):
             if isinstance(type_, Call):
