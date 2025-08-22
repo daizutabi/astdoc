@@ -1,5 +1,7 @@
 import pytest
 
+# pyright: reportPrivateUsage=false
+
 
 @pytest.mark.parametrize(
     "name",
@@ -11,7 +13,7 @@ import pytest
         "ChoiceLoader.load",
     ],
 )
-def test_module_members_package_jinja(name):
+def test_module_members_package_jinja(name: str):
     from astdoc.node import iter_module_members
 
     assert name in [m for m, _ in iter_module_members("jinja2")]
@@ -26,7 +28,7 @@ def test_module_members_package_jinja(name):
         "ExampleClassNumPy.readonly_property",
     ],
 )
-def test_module_members_package_alias(name):
+def test_module_members_package_alias(name: str):
     from astdoc.node import iter_module_members
 
     assert name in [m for m, _ in iter_module_members("examples._styles")]
@@ -43,7 +45,7 @@ def test_module_members_overloads():
 
 
 @pytest.mark.parametrize("name", ["Item.clone", "Section.clone", "Doc.clone"])
-def test_module_members_class(name):
+def test_module_members_class(name: str):
     from astdoc.node import iter_module_members
 
     assert name in [m for m, _ in iter_module_members("astdoc.doc")]
@@ -81,21 +83,21 @@ def test_module_members_have_objects(module: str):
 
 
 @pytest.mark.parametrize("name", ["Node", "Import", "Definition", "Assign", "Module"])
-def test_iter_classes_from_module(name):
+def test_iter_classes_from_module(name: str):
     from astdoc.node import iter_classes_from_module
 
     assert name in iter_classes_from_module("astdoc.node")
 
 
 @pytest.mark.parametrize("name", ["Environment", "Template", "FileSystemLoader"])
-def test_iter_classes_from_module_export(name):
+def test_iter_classes_from_module_export(name: str):
     from astdoc.node import iter_classes_from_module
 
     assert name in iter_classes_from_module("jinja2")
 
 
 @pytest.mark.parametrize("name", ["ExampleClassGoogle", "ExampleClassNumPy"])
-def test_iter_classes_from_module_alias(name):
+def test_iter_classes_from_module_alias(name: str):
     from astdoc.node import iter_classes_from_module
 
     assert name in iter_classes_from_module("examples._styles")

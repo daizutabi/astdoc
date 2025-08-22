@@ -2,6 +2,8 @@ import ast
 
 import pytest
 
+# pyright: reportPrivateUsage=false
+
 
 def test_iter_imports():
     from astdoc.node import _iter_imports
@@ -41,7 +43,7 @@ def test_iter_imports_from():
 
 
 @pytest.mark.parametrize(("k", "n"), [(0, ""), (1, ".b"), (2, ".b.c")])
-def test_parse_import(k, n):
+def test_parse_import(k: int, n: str):
     from astdoc.node import Import, parse_node
 
     name = "test_parse_import"

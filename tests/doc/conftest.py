@@ -1,4 +1,6 @@
 import ast
+from ast import AST, ClassDef, FunctionDef
+from collections.abc import Callable
 
 import pytest
 
@@ -18,9 +20,9 @@ def numpy():
 
 @pytest.fixture(scope="module")
 def get_node():
-    def get_node(node, name):
+    def get_node(node: AST, name: str):
         for child in iter_child_nodes(node):
-            if not isinstance(child, ast.FunctionDef | ast.ClassDef):
+            if not isinstance(child, FunctionDef | ClassDef):
                 continue
             if child.name == name:
                 return child
@@ -30,8 +32,8 @@ def get_node():
 
 
 @pytest.fixture(scope="module")
-def get(get_node):
-    def get(node, name):
+def get(get_node: Callable[[AST, str], FunctionDef | ClassDef]):
+    def get(node: AST, name: str):
         return ast.get_docstring(get_node(node, name))
 
     return get

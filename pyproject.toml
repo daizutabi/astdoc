@@ -100,7 +100,9 @@ ignore = [
 
 [tool.basedpyright]
 include = ["src"]
+exclude = ["tests/examples"]
 reportAny = false
 reportExplicitAny = false
 reportImplicitOverride = false
 reportIncompatibleVariableOverride = false
+reportUnusedCallResult = false

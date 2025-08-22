@@ -65,7 +65,7 @@ def test_resolve_astdoc_class():
     "name",
     ["astdoc", "astdoc.ast", "astdoc.ast.AST", "astdoc.ast.XXX"],
 )
-def test_get_fullname_module(name):
+def test_get_fullname_module(name: str):
     from astdoc.node import get_fullname_from_module
 
     x = get_fullname_from_module(name, "astdoc.node")
@@ -88,11 +88,11 @@ def test_get_fullname_class():
 
 
 @pytest.fixture(params=["", "._private", ".readonly_property"])
-def attr(request):
+def attr(request: pytest.FixtureRequest):
     return request.param
 
 
-def test_get_fullname_qualname(attr):
+def test_get_fullname_qualname(attr: str):
     from astdoc.node import get_fullname_from_module
 
     module = "examples._styles.google"
@@ -100,7 +100,7 @@ def test_get_fullname_qualname(attr):
     assert get_fullname_from_module(name, module) == f"{module}.{name}"
 
 
-def test_get_fullname_qualname_alias(attr):
+def test_get_fullname_qualname_alias(attr: str):
     from astdoc.node import get_fullname_from_module
 
     module = "examples._styles"
@@ -144,7 +144,7 @@ def test_get_fullname_nested_none():
         ("Doc.clone", "astdoc.object", "astdoc.doc.Doc.clone"),
     ],
 )
-def test_get_fullname_method(name, module, expected):
+def test_get_fullname_method(name: str, module: str | None, expected: str):
     from astdoc.node import get_fullname_from_module
 
     assert get_fullname_from_module(name, module) == expected

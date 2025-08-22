@@ -21,7 +21,7 @@ def test_list_exported_names():
 
 
 def test_parse_module():
-    import examples
+    import examples  # pyright: ignore[reportImplicitRelativeImport]
 
     for name, _ in parse_module("examples"):
         if "." not in name:
@@ -52,7 +52,7 @@ def test_parse_module_names():
 
 
 def test_iter_module_members_inspect():
-    import examples
+    import examples  # pyright: ignore[reportImplicitRelativeImport]
 
     members = [name for name, _ in inspect.getmembers(examples)]
     for name, _ in iter_module_members("examples", child_only=True):
