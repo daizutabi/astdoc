@@ -37,7 +37,7 @@ jobs:
       - name: Ruff check
         run: uvx ruff check
       - name: Basedpyright check
-        run: uvx basyedpyright
+        run: uvx basedpyright
       - name: Run tests
         run: uv run pytest -v --junitxml=junit.xml
       - name: Upload Codecov Results
