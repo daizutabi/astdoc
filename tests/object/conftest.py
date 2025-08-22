@@ -1,4 +1,5 @@
 import ast
+from ast import AST, Module
 
 import pytest
 
@@ -12,8 +13,8 @@ def google():
 
 
 @pytest.fixture(scope="module")
-def get(google):
-    def get(name, *rest, node=google):
+def get(google: Module):
+    def get(name: str, *rest: str, node: AST = google) -> AST:
         for child in iter_child_nodes(node):
             if not isinstance(child, ast.FunctionDef | ast.ClassDef):
                 continue

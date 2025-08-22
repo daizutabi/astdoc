@@ -1,5 +1,7 @@
 import ast
 import inspect
+from ast import AST
+from collections.abc import Callable
 
 import pytest
 
@@ -24,7 +26,7 @@ def test_create_class_nested():
     assert isinstance(cls, Class)
 
 
-def test_create_class(get):
+def test_create_class(get: Callable[[str], AST]):
     from astdoc.object import Class, Function, Property, create_class
 
     node = get("ExampleClass")
@@ -39,7 +41,7 @@ def test_create_class(get):
         assert isinstance(cls.get(x), Property)
 
 
-def test_create_class_cache(get):
+def test_create_class_cache(get: Callable[[str], AST]):
     from astdoc.object import create_class
 
     node = get("ExampleClass")
@@ -178,7 +180,7 @@ def test_children_order():
         "VAR_KEYWORD",
     ],
 )
-def test_enum(name):
+def test_enum(name: str):
     from astdoc.object import Class, get_object
 
     cls = get_object("inspect._ParameterKind")

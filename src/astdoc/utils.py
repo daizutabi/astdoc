@@ -23,15 +23,16 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator
     from typing import Any
 
-cached_objects = []
-
-T = TypeVar("T")
 
 # pyright: reportMissingTypeArgument=false
 # pyright: reportUnknownArgumentType=false
 # pyright: reportUnknownMemberType=false
 # pyright: reportUnknownParameterType=false
 # pyright: reportUnknownVariableType=false
+
+cached_objects: list[Any] = []
+
+T = TypeVar("T")
 
 
 @overload

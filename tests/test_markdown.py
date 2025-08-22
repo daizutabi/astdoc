@@ -1,8 +1,11 @@
 import doctest
 import inspect
 import re
+from doctest import Example
 
 import pytest
+
+# pyright: reportPrivateUsage=false
 
 
 @pytest.mark.parametrize(
@@ -13,7 +16,7 @@ import pytest
         ("abc\n", [(0, 0, 4)]),
     ],
 )
-def test_iter(text, results):
+def test_iter(text: str, results: list[tuple[int, ...]]):
     from astdoc.markdown import _iter
 
     x = list(_iter(re.compile("X"), text))
@@ -28,7 +31,7 @@ def test_iter(text, results):
         ("XabcXdefX", 2, [(0, 2, 4), (2, 5, 8)]),
     ],
 )
-def test_iter_pos(text, pos, results):
+def test_iter_pos(text: str, pos: int, results: list[tuple[int, ...]]):
     from astdoc.markdown import _iter
 
     x = list(_iter(re.compile("X"), text, pos=pos))
@@ -55,7 +58,7 @@ def test_iter_fenced_codes():
 
 
 @pytest.mark.parametrize(("suffix", "n"), [("", 2), ("\n", 3)])
-def test_iter_fenced_codes_suffix(suffix, n):
+def test_iter_fenced_codes_suffix(suffix: str, n: int):
     from astdoc.markdown import _iter_fenced_codes
 
     text = f"abc\n~~~~x\n```\nx\n```\n~~~~{suffix}"
@@ -92,13 +95,13 @@ def examples_text():
 
 
 @pytest.fixture(scope="module")
-def examples(examples_text):
+def examples(examples_text: str):
     from astdoc.markdown import _iter_examples
 
     return list(_iter_examples(examples_text))
 
 
-def test_iter_examples_len(examples):
+def test_iter_examples_len(examples: list[Example | str]):
     assert len(examples) == 10
 
 
@@ -106,7 +109,7 @@ def test_iter_examples_len(examples):
     ("i", "source"),
     [(0, "X\n"), (3, "\n  Y\n"), (7, "\n"), (9, "\nZ")],
 )
-def test_iter_examples_str(examples, i, source):
+def test_iter_examples_str(examples: list[Example | str], i: int, source: str):
     assert examples[i] == source
 
 
@@ -121,15 +124,22 @@ def test_iter_examples_str(examples, i, source):
         (8, "a\n", 0),
     ],
 )
-def test_iter_examples_example(examples, i, source, indent):
+def test_iter_examples_example(
+    examples: list[Example | str],
+    i: int,
+    source: str,
+    indent: int,
+):
     example = examples[i]
     assert isinstance(example, doctest.Example)
     assert example.source == source
     assert example.indent == indent
 
 
-def test_iter_examples_item_example_want(examples):
-    assert examples[8].want == "1\n"
+def test_iter_examples_item_example_want(examples: list[Example | str]):
+    e = examples[8]
+    assert isinstance(e, Example)
+    assert e.want == "1\n"
 
 
 def test_iter_example_one():
@@ -141,13 +151,13 @@ def test_iter_example_one():
 
 
 @pytest.mark.parametrize("text", ["a", "a\n", "abc\ndef\n", "abc\ndef", ">>> abc"])
-def test_iter_examples_empty(text):
+def test_iter_examples_empty(text: str):
     from astdoc.markdown import _iter_examples
 
     assert list(_iter_examples(text)) == [text]
 
 
-def test_iter_example_lists(examples_text):
+def test_iter_example_lists(examples_text: str):
     from astdoc.markdown import _iter_example_lists
 
     x = list(_iter_example_lists(examples_text))
@@ -171,13 +181,13 @@ def convert_examples():
 
 
 @pytest.fixture(scope="module")
-def converted_examples(convert_examples):
+def converted_examples(convert_examples: list[list[Example]]):
     from astdoc.markdown import _convert_examples
 
     return [_convert_examples(e) for e in convert_examples]
 
 
-def test_convert_examples_len(converted_examples):
+def test_convert_examples_len(converted_examples: list[str]):
     assert len(converted_examples) == 3
 
 
@@ -191,7 +201,7 @@ def test_convert_examples_len(converted_examples):
         (2, "input}\na = 3\n```\n"),
     ],
 )
-def test_convert_examples(converted_examples, i, text):
+def test_convert_examples(converted_examples: list[str], i: int, text: str):
     assert text in converted_examples[i]
 
 
@@ -203,7 +213,7 @@ def test_convert_examples(converted_examples, i, text):
         ("a\nb\n", ""),
     ],
 )
-def test_split_block(text, first):
+def test_split_block(text: str, first: str):
     from astdoc.markdown import _split_block
 
     x, y = _split_block(text, 0)
@@ -386,7 +396,7 @@ def test_sub():
     src = inspect.cleandoc(src)
     src = convert_code_block(src)
 
-    def rel(m: re.Match):
+    def rel(m: re.Match[str]):
         name = m.group("name")
         return f"xxx{name}xxx"
 
@@ -401,7 +411,7 @@ def test_sub_match():
     pattern = re.compile("X")
     src = "aXb"
 
-    def rel(m: re.Match):
+    def rel(m: re.Match[str]):
         name = m.group()
         return f"_{name}_"
 
@@ -434,7 +444,7 @@ def test_sub_not_match():
     pattern = re.compile("X")
     src = "a\n```\nX\n```\nb"
 
-    def rel(m: re.Match):
+    def rel(m: re.Match[str]):
         name = m.group()
         return f"_{name}_"
 

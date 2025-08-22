@@ -1,8 +1,15 @@
 import ast
 import textwrap
+from ast import AST
 from inspect import _ParameterKind
 
 import pytest
+
+from astdoc.ast import Parameter
+
+# pyright: reportPrivateUsage=false
+# pyright: reportUnknownVariableType=false
+# pyright: reportPrivateLocalImportUsage=false
 
 
 @pytest.fixture(scope="module")
@@ -14,12 +21,12 @@ def child_nodes():
     return list(iter_child_nodes(node))
 
 
-def test_iter_child_nodes_len(child_nodes):
+def test_iter_child_nodes_len(child_nodes: list[AST]):
     assert len(child_nodes) == 3
 
 
 @pytest.mark.parametrize(("i", "doc"), [(0, None), (1, "b"), (2, None)])
-def test_iter_child_nodes(child_nodes, i, doc):
+def test_iter_child_nodes(child_nodes: list[AST], i: int, doc: str | None):
     assert child_nodes[i].__doc__ == doc
 
 
@@ -51,10 +58,14 @@ def parameters():
         (3, "d", 1, _ParameterKind.KEYWORD_ONLY),
     ],
 )
-def test_iter_parameters(parameters, i, name, default, kind):
+def test_iter_parameters(
+    parameters: list[Parameter],
+    i: int,
+    name: str,
+    default: int | None,
+    kind: _ParameterKind,
+):
     from ast import Constant
-
-    from astdoc.ast import Parameter
 
     p = parameters[i]
     assert isinstance(p, Parameter)
@@ -106,7 +117,7 @@ def test_expr_subscript():
         ("a(b.c[d])", "__astdoc__.a(__astdoc__.b.c[__astdoc__.d])"),
     ],
 )
-def test_expr_attribute(src, expected):
+def test_expr_attribute(src: str, expected: str):
     assert _unparse(src) == expected
 
 
@@ -124,7 +135,7 @@ def test_expr_str():
         (4, "], y", False),
     ],
 )
-def test_iter_identifiers_bracket(i, text, is_identifier):
+def test_iter_identifiers_bracket(i: int, text: str, *, is_identifier: bool):
     from astdoc.ast import _iter_identifiers
 
     x = list(_iter_identifiers("x, __astdoc__.a.b0[__astdoc__.c], y"))
@@ -135,7 +146,7 @@ def test_iter_identifiers_bracket(i, text, is_identifier):
     ("i", "text", "is_identifier"),
     [(0, "a.b", True), (1, "()", False)],
 )
-def test_iter_identifiers_paren(i, text, is_identifier):
+def test_iter_identifiers_paren(i: int, text: str, *, is_identifier: bool):
     from astdoc.ast import _iter_identifiers
 
     x = list(_iter_identifiers("__astdoc__.a.b()"))
@@ -146,7 +157,7 @@ def test_iter_identifiers_paren(i, text, is_identifier):
     ("i", "text", "is_identifier"),
     [(0, "'ab'\n ", False), (1, "a", True)],
 )
-def test_iter_identifiers_lines(i, text, is_identifier):
+def test_iter_identifiers_lines(i: int, text: str, *, is_identifier: bool):
     from astdoc.ast import _iter_identifiers
 
     x = list(_iter_identifiers("'ab'\n __astdoc__.a"))
@@ -157,7 +168,7 @@ def test_iter_identifiers_lines(i, text, is_identifier):
     ("i", "text", "is_identifier"),
     [(0, "'ab'\n ", False), (1, "α.β.γ", True)],
 )
-def test_iter_identifiers_greek(i, text, is_identifier):
+def test_iter_identifiers_greek(i: int, text: str, *, is_identifier: bool):
     from astdoc.ast import _iter_identifiers
 
     x = list(_iter_identifiers("'ab'\n __astdoc__.α.β.γ"))
@@ -175,7 +186,7 @@ def test_iter_identifiers_greek(i, text, is_identifier):
         ("list['A']", "<list>[<A>]"),
     ],
 )
-def test_unparse(src, expected):
+def test_unparse(src: str, expected: str):
     from astdoc.ast import unparse
 
     def callback(s: str) -> str:
@@ -191,7 +202,7 @@ def test_unparse(src, expected):
     ("src", "expected"),
     [("@classmethod\ndef func(cls): pass", True), ("def func(cls): pass", False)],
 )
-def test_is_classmethod(src, expected):
+def test_is_classmethod(src: str, *, expected: bool):
     from astdoc.ast import is_classmethod
 
     node = ast.parse(src).body[0]
@@ -202,7 +213,7 @@ def test_is_classmethod(src, expected):
     ("src", "expected"),
     [("@staticmethod\ndef func(): pass", True), ("def func(): pass", False)],
 )
-def test_is_staticmethod(src, expected):
+def test_is_staticmethod(src: str, *, expected: bool):
     from astdoc.ast import is_staticmethod
 
     node = ast.parse(src).body[0]
@@ -213,7 +224,7 @@ def test_is_staticmethod(src, expected):
     ("src", "expected"),
     [("x: int = 5", True), ("x = 5", True), ("def func(): pass", False)],
 )
-def test_is_assign(src, expected):
+def test_is_assign(src: str, *, expected: bool):
     from astdoc.ast import is_assign
 
     node = ast.parse(src).body[0]
@@ -224,7 +235,7 @@ def test_is_assign(src, expected):
     ("src", "expected"),
     [("def func(): pass", True), ("class MyClass: pass", False)],
 )
-def test_is_function_def(src, expected):
+def test_is_function_def(src: str, *, expected: bool):
     from astdoc.ast import is_function_def
 
     node = ast.parse(src).body[0]
@@ -235,7 +246,7 @@ def test_is_function_def(src, expected):
     ("src", "expected"),
     [("@property\ndef func(self): pass", True), ("def func(self): pass", False)],
 )
-def test_is_property(src, expected):
+def test_is_property(src: str, *, expected: bool):
     from astdoc.ast import is_property
 
     node = ast.parse(src).body[0]
@@ -249,7 +260,7 @@ def test_is_property(src, expected):
         ("def func(self, value): pass", False),
     ],
 )
-def test_is_setter(src, expected):
+def test_is_setter(src: str, *, expected: bool):
     from astdoc.ast import is_setter
 
     node = ast.parse(src).body[0]
@@ -260,7 +271,7 @@ def test_is_setter(src, expected):
     ("name", "expected"),
     [("my_decorator", True), ("other_decorator", False)],
 )
-def test_has_decorator(name, expected):
+def test_has_decorator(name: str, *, expected: bool):
     from astdoc.ast import has_decorator
 
     src = "@my_decorator\ndef func(): pass"
@@ -306,8 +317,6 @@ def test_get_assign_type_type_alias():
 
 
 def test_parameter_repr():
-    from astdoc.ast import Parameter
-
     param = Parameter(
         name="arg1",
         type=None,

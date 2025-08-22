@@ -1,5 +1,7 @@
 import ast
 import inspect
+from ast import AST
+from collections.abc import Callable
 
 
 def test_merge_attributes_comment():
@@ -50,7 +52,7 @@ def test_create_attribute_module():
     assert a.doc.text
 
 
-def test_iter_init_attributes(get):
+def test_iter_init_attributes(get: Callable[[str], AST]):
     from astdoc.object import (
         Class,
         Function,
